@@ -1,7 +1,10 @@
+import 'package:dartoclock/gameModesEnum.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:test1/addPoints.dart';
-import 'package:test1/settings.dart';
+
+import 'addPoints.dart';
+import 'settings.dart';
+import 'gameChoice.dart';
 
 void main() {
   runApp(DartApp());
@@ -10,51 +13,21 @@ void main() {
 class DartApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'DartApp', home: GameChoiceScreen());
+    return MaterialApp(title: 'Dartoclock', home: GameChoiceScreen());
   }
 }
 
-String gameMode = 'Classic';
+GameModes gameMode;
+int userCount;
 
 class HomeScreen extends StatefulWidget {
+  HomeScreen(GameModes selectedGameMode, chosenUserCount) {
+    gameMode = selectedGameMode;
+    userCount = chosenUserCount;
+  }
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
-}
-
-class GameChoiceScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Choose the game mode'),
-      ),
-      body: Container(
-        margin: EdgeInsets.all(14.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Welcome, choose your game mode to play.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18),
-            ),
-            RaisedButton(
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => HomeScreen(),
-                ));
-              },
-              child: Text('Classic'),
-            )
-          ],
-        ),
-      ),
-      bottomNavigationBar: _buildNavigation(context),
-    );
-  }
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -62,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('DartApp'),
+        title: Text('Dartoclock'),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.stop), onPressed: _showQuitGameDialog)
         ],
@@ -75,15 +48,14 @@ class _HomeScreenState extends State<HomeScreen> {
               margin: EdgeInsets.all(12),
               child: Center(
                 child: Text(
-                  gameMode + ' game',
+                  gameMode.toString().split('.').last + ' game',
                   textAlign: TextAlign.center,
                   softWrap: true,
                   style: TextStyle(fontSize: 20),
                 ),
               ),
             ),
-            UserScreen(name: 'Player 1'),
-            UserScreen(name: 'Player 2'),
+            for (int i=1; i<=userCount; i++) UserScreen(name: 'Player $i'),
           ],
         ),
       ]),
@@ -172,7 +144,7 @@ class _UserScreenState extends State<UserScreen> {
     _textFieldController.text = widget.name;
 
     return Center(
-      heightFactor: 2,
+      heightFactor: 1.2,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
