@@ -26,6 +26,7 @@ class HomeScreen extends StatefulWidget {
   HomeScreen(GameModes selectedGameMode, chosenUserCount) {
     gameMode = selectedGameMode;
     userCount = chosenUserCount;
+    someoneFinished = false;
   }
 
   @override
@@ -131,6 +132,8 @@ class UserScreen extends StatefulWidget {
   _UserScreenState createState() => _UserScreenState();
 }
 
+bool someoneFinished = false;
+
 class _UserScreenState extends State<UserScreen> {
   final _textFieldController = TextEditingController();
   int score;
@@ -235,6 +238,12 @@ class _UserScreenState extends State<UserScreen> {
                 setState(() {
                   score = result;
                   previousScoreList.add(result);
+                  if (score == 0 && !someoneFinished) {
+                    setState(() {
+                      someoneFinished = true;
+                      _showWinningDialog();
+                    });
+                  }
                 });
               }
             },
@@ -267,6 +276,35 @@ class _UserScreenState extends State<UserScreen> {
         )
       ]),
     );
+  }
+
+  Future<dynamic> _showWinningDialog() {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Game won!'),
+            content: Text('Good news, ' +
+                widget.name +
+                ' won the game! Do you want to finish the game? (You can always'
+                    ' finish the game by pressing the stop icon in '
+                    'the top right of the screen.)'),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text('FINISH'),
+                onPressed: () {
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (context) => GameChoiceScreen()),
+                          (route) => false);
+                },
+              ),
+              new FlatButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: new Text('CANCEL'))
+            ],
+          );
+        });
   }
 
   Future<dynamic> _showUndoDialog() {
