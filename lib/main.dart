@@ -1,4 +1,5 @@
 import 'package:dartoclock/gameModesEnum.dart';
+import 'package:dartoclock/history.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -55,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            for (int i=1; i<=userCount; i++) UserScreen(name: 'Player $i'),
+            for (int i = 1; i <= userCount; i++) UserScreen(name: 'Player $i'),
           ],
         ),
       ]),
@@ -230,15 +231,28 @@ class _UserScreenState extends State<UserScreen> {
               style: TextStyle(fontSize: 18),
             ),
           ),
-        ]),
-        Text(
-          'History',
-          style: TextStyle(
-            fontSize: 18,
-            color: Colors.black54,
+          Visibility(
+            visible: previousScoreList.isNotEmpty,
+            maintainSize: true,
+            maintainAnimation: true,
+            maintainState: true,
+            child: IconButton(
+              icon: Icon(Icons.history),
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => HistoryWindow(
+                        widget.name, previousScoreList, score, startScore)));
+              },
+            ),
           ),
-        ),
-        _generateHistoryTextView()
+        ]),
+        Container(
+          margin: EdgeInsets.all(10),
+          child: Text(
+            'Previous throw: ' + _generatePreviousThrow(),
+            style: TextStyle(fontSize: 16),
+          ),
+        )
       ]),
     );
   }
@@ -284,23 +298,19 @@ class _UserScreenState extends State<UserScreen> {
         });
   }
 
-  Container _generateHistoryTextView() {
+  String _generatePreviousThrow() {
     String text = "";
     if (previousScoreList.isEmpty) {
-      text = 'There\'s no history yet';
+      text = 'This is your first throw';
     } else {
-      int newScore = startScore;
-      for (int score in previousScoreList) {
-        int difference = newScore - score;
-        text += (score.toString() + ' (-' + difference.toString() + ('); '));
-        newScore = score;
+      if (previousScoreList.length == 1) {
+        text += (startScore - previousScoreList.last).toString();
+      } else {
+        text += (previousScoreList[previousScoreList.length - 2] -
+                previousScoreList.last)
+            .toString();
       }
     }
-
-    return Container(
-        margin: EdgeInsets.all(10),
-        child: Text(
-          text,
-        ));
+    return text;
   }
 }
