@@ -1,19 +1,120 @@
-import 'package:dartoclock/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:settings_ui/settings_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class SettingsWindow extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
+  @override
+  _SettingsScreenState createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final _classicTextFieldController = TextEditingController();
+  int classicPoints;
+
+  Future<void> getSharedPrefs() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      classicPoints = prefs.getInt('classicPoints') ?? 360;
+      _classicTextFieldController.text = classicPoints.toString();
+    });
+  }
+
+  Future<void> setSharedPrefs() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('classicPoints', classicPoints);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    classicPoints = 0;
+    getSharedPrefs();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
       ),
-      body: Column(
-        children: <Widget>[Text('This is the settings window')],
+      body: SettingsList(
+        sections: [
+          SettingsSection(title: 'Classic game', tiles: [
+            SettingsTile(
+              title: 'Score to reach',
+              subtitle: 'What is the score you want to start with? '
+                  'Changing this value will only affect future games. '
+                  'Default: 360. Currently: $classicPoints.',
+              leading: Icon(Icons.score),
+              onTap: () {
+                return showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Classic start number'),
+                        content: TextField(
+                          keyboardType: TextInputType.number,
+                          controller: _classicTextFieldController,
+                          inputFormatters: <TextInputFormatter>[
+                            WhitelistingTextInputFormatter.digitsOnly,
+                            new LengthLimitingTextInputFormatter(4)
+                          ],
+                        ),
+                        actions: <Widget>[
+                          new FlatButton(
+                            child: new Text('SAVE'),
+                            onPressed: () {
+                              if (_classicTextFieldController.text.length > 0 &&
+                                  int.parse(_classicTextFieldController.text) >
+                                      0) {
+                                setState(() {
+                                  classicPoints = int.parse(
+                                      _classicTextFieldController.text);
+                                  setSharedPrefs();
+                                });
+                                Navigator.of(context).pop();
+                              } else {
+                                setState(() {
+                                  _classicTextFieldController.text =
+                                      classicPoints.toString();
+                                });
+                                Navigator.of(context).pop();
+                              }
+                            },
+                          )
+                        ],
+                      );
+                    });
+              },
+            )
+          ]),
+          SettingsSection(
+            title: 'General settings',
+            tiles: [
+              SettingsTile(
+                title: 'GitHub',
+                subtitle: 'Go to the GitHub-page to find the latest release',
+                leading: Icon(Icons.language),
+                onTap: () {
+                  _launchGithub();
+                },
+              )
+            ],
+          )
+        ],
       ),
       bottomNavigationBar: _buildNavigation(context),
     );
+  }
+
+  void _launchGithub() async {
+    const url = 'https://github.com/maarten-degroof/Dartoclock';
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
   }
 
   Widget _buildNavigation(BuildContext context) {
@@ -22,7 +123,9 @@ class SettingsWindow extends StatelessWidget {
       currentIndex: 3,
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.white60,
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: Theme
+          .of(context)
+          .primaryColor,
       selectedFontSize: 14,
       unselectedFontSize: 14,
       onTap: (value) {

@@ -97,7 +97,7 @@ Widget _buildNavigation(BuildContext context) {
       switch (value) {
         case 3:
           Navigator.of(context).push(MaterialPageRoute<void>(
-            builder: (context) => SettingsWindow(),
+            builder: (context) => SettingsScreen(),
           ));
       }
     },

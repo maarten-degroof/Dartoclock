@@ -2,6 +2,7 @@ import 'package:dartoclock/gameModesEnum.dart';
 import 'package:dartoclock/history.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'addPoints.dart';
 import 'settings.dart';
@@ -107,7 +108,7 @@ Widget _buildNavigation(BuildContext context) {
       switch (value) {
         case 3:
           Navigator.of(context).push(MaterialPageRoute<void>(
-            builder: (context) => SettingsWindow(),
+            builder: (context) => SettingsScreen(),
           ));
       }
     },
@@ -131,14 +132,25 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
-  _UserScreenState() {
-    score = startScore;
-  }
   final _textFieldController = TextEditingController();
   int score;
-  int startScore = 300;
+  int startScore;
 
   var previousScoreList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getSharedPrefs();
+  }
+
+  Future<void> getSharedPrefs() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      startScore = prefs.getInt('classicPoints') ?? 360;
+      score = startScore;
+    });
+  }
 
   Widget _buildNameRow() {
     // Set the original player name in the textField
