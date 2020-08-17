@@ -75,7 +75,17 @@ class _GameChoiceScreenState extends State<GameChoiceScreen> {
                   ));
                 },
                 child: Text('Classic'),
-              )
+              ),
+              RaisedButton(
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => HomeScreen(GameModes.Countdown, users),
+                  ));
+                },
+                child: Text('Countdown'),
+              ),
             ]),
       ),
       bottomNavigationBar: _buildNavigation(context),

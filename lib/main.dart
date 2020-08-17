@@ -50,12 +50,15 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               margin: EdgeInsets.all(12),
               child: Center(
-                child: Text(
-                  gameMode.toString().split('.').last + ' game',
-                  textAlign: TextAlign.center,
-                  softWrap: true,
-                  style: TextStyle(fontSize: 20),
-                ),
+                child: Column(children: [
+                  Text(
+                    gameMode.toString().split('.').last + ' game',
+                    textAlign: TextAlign.center,
+                    softWrap: true,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Text(_loadGameModeDescription())
+                ]),
               ),
             ),
             for (int i = 1; i <= userCount; i++) UserScreen(name: 'Player $i'),
@@ -64,6 +67,16 @@ class _HomeScreenState extends State<HomeScreen> {
       ]),
       bottomNavigationBar: _buildNavigation(context),
     );
+  }
+
+  String _loadGameModeDescription() {
+    switch (gameMode) {
+      case GameModes.Classic:
+        return 'The first one to get their counter to 0 wins';
+        break;
+      case GameModes.Countdown:
+        return 'Throw each number once starting from 20. The first one to 1 and throw it wins';
+    }
   }
 
   /// This shows the dialog that asks if you want to quit the current game
@@ -132,12 +145,14 @@ class UserScreen extends StatefulWidget {
   _UserScreenState createState() => _UserScreenState();
 }
 
-bool someoneFinished = false;
+bool someoneFinished;
 
 class _UserScreenState extends State<UserScreen> {
   final _textFieldController = TextEditingController();
   int score;
   int startScore;
+  int currentCountdownThrow;
+  final countDownStart = 20;
 
   var previousScoreList = [];
 
@@ -145,6 +160,7 @@ class _UserScreenState extends State<UserScreen> {
   void initState() {
     super.initState();
     getSharedPrefs();
+    currentCountdownThrow = countDownStart;
   }
 
   Future<void> getSharedPrefs() async {
@@ -205,6 +221,149 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
+  Widget _buildGameModeRow() {
+    switch (gameMode) {
+      case GameModes.Classic:
+        return _buildClassicScoreColumn();
+        break;
+      case GameModes.Countdown:
+        return _buildCountdownScoreColumn();
+        break;
+    }
+  }
+
+  String _buildCountdownTextField() {
+    String textBuilder = '';
+    for (int i = countDownStart; i > 0; i--) {
+      // If i is bigger, the throw has already been completed
+      if (i > currentCountdownThrow) {
+        textBuilder += '✔' + i.toString() + '    ';
+      } else {
+        textBuilder += '❌' + i.toString() + '    ';
+      }
+    }
+    return textBuilder;
+  }
+
+  Widget _buildCountdownScoreColumn() {
+    return Column(children: [
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Visibility(
+          visible: currentCountdownThrow < countDownStart,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: IconButton(
+            icon: Icon(Icons.undo),
+            onPressed: _showUndoDialog,
+          ),
+        ),
+        OutlineButton(
+          textColor: Colors.green,
+          onPressed: () {
+            setState(() {
+              if (currentCountdownThrow > 0) {
+                currentCountdownThrow--;
+              };
+              if (currentCountdownThrow == 0 && !someoneFinished) {
+                someoneFinished = true;
+               _showWinningDialog();
+              }
+            });
+          },
+          child: Text(
+            currentCountdownThrow.toString(),
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+        Visibility(
+          visible: previousScoreList.isNotEmpty,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: IconButton(
+            icon: Icon(Icons.history),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => HistoryWindow(
+                      widget.name, previousScoreList, score, startScore)));
+            },
+          ),
+        ),
+      ]),
+      Container(
+          margin: EdgeInsets.all(10.0),
+          child: Text(
+            _buildCountdownTextField(),
+            style: TextStyle(height: 1.5),
+          )),
+    ]);
+  }
+
+  Widget _buildClassicScoreColumn() {
+    return Column(children: [
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Visibility(
+          visible: previousScoreList.isNotEmpty,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: IconButton(
+            icon: Icon(Icons.undo),
+            onPressed: _showUndoDialog,
+          ),
+        ),
+        OutlineButton(
+          textColor: Colors.green,
+          onPressed: () async {
+            final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        AddPointsScreen(startScore: score, user: widget.name)));
+            if (result != null) {
+              setState(() {
+                score = result;
+                previousScoreList.add(result);
+                if (score == 0 && !someoneFinished) {
+                  setState(() {
+                    someoneFinished = true;
+                    _showWinningDialog();
+                  });
+                }
+              });
+            }
+          },
+          child: Text(
+            score.toString(),
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+        Visibility(
+          visible: previousScoreList.isNotEmpty,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: IconButton(
+            icon: Icon(Icons.history),
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => HistoryWindow(
+                      widget.name, previousScoreList, score, startScore)));
+            },
+          ),
+        ),
+      ]),
+      Container(
+        margin: EdgeInsets.all(10),
+        child: Text(
+          'Previous throw: ' + _generatePreviousThrow(),
+          style: TextStyle(fontSize: 16),
+        ),
+      )
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -215,65 +374,7 @@ class _UserScreenState extends State<UserScreen> {
           borderRadius: BorderRadius.all(Radius.circular(10.0))),
       child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
         _buildNameRow(),
-        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Visibility(
-            visible: previousScoreList.isNotEmpty,
-            maintainSize: true,
-            maintainAnimation: true,
-            maintainState: true,
-            child: IconButton(
-              icon: Icon(Icons.undo),
-              onPressed: _showUndoDialog,
-            ),
-          ),
-          OutlineButton(
-            textColor: Colors.green,
-            onPressed: () async {
-              final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AddPointsScreen(
-                          startScore: score, user: widget.name)));
-              if (result != null) {
-                setState(() {
-                  score = result;
-                  previousScoreList.add(result);
-                  if (score == 0 && !someoneFinished) {
-                    setState(() {
-                      someoneFinished = true;
-                      _showWinningDialog();
-                    });
-                  }
-                });
-              }
-            },
-            child: Text(
-              score.toString(),
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
-          Visibility(
-            visible: previousScoreList.isNotEmpty,
-            maintainSize: true,
-            maintainAnimation: true,
-            maintainState: true,
-            child: IconButton(
-              icon: Icon(Icons.history),
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => HistoryWindow(
-                        widget.name, previousScoreList, score, startScore)));
-              },
-            ),
-          ),
-        ]),
-        Container(
-          margin: EdgeInsets.all(10),
-          child: Text(
-            'Previous throw: ' + _generatePreviousThrow(),
-            style: TextStyle(fontSize: 16),
-          ),
-        )
+        _buildGameModeRow(),
       ]),
     );
   }
@@ -296,7 +397,7 @@ class _UserScreenState extends State<UserScreen> {
                   Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
                           builder: (context) => GameChoiceScreen()),
-                          (route) => false);
+                      (route) => false);
                 },
               ),
               new FlatButton(
@@ -309,12 +410,16 @@ class _UserScreenState extends State<UserScreen> {
 
   Future<dynamic> _showUndoDialog() {
     int lastThrownScore;
-    if (previousScoreList.length == 1) {
-      lastThrownScore = startScore - previousScoreList.last;
-    } else {
-      lastThrownScore =
-          previousScoreList.elementAt(previousScoreList.length - 2) -
-              previousScoreList.elementAt(previousScoreList.length - 1);
+    if (gameMode == GameModes.Classic) {
+      if (previousScoreList.length == 1) {
+        lastThrownScore = startScore - previousScoreList.last;
+      } else {
+        lastThrownScore =
+            previousScoreList.elementAt(previousScoreList.length - 2) -
+                previousScoreList.elementAt(previousScoreList.length - 1);
+      }
+    } else if (gameMode == GameModes.Countdown) {
+      lastThrownScore = currentCountdownThrow + 1;
     }
 
     return showDialog(
@@ -331,10 +436,14 @@ class _UserScreenState extends State<UserScreen> {
                 child: new Text('UNDO'),
                 onPressed: () {
                   setState(() {
-                    previousScoreList.removeLast();
-                    previousScoreList.isEmpty
-                        ? score = startScore
-                        : score = previousScoreList.last;
+                    if (gameMode == GameModes.Classic) {
+                      previousScoreList.removeLast();
+                      previousScoreList.isEmpty
+                          ? score = startScore
+                          : score = previousScoreList.last;
+                    } else if (gameMode == GameModes.Countdown) {
+                      currentCountdownThrow++;
+                    }
                   });
 
                   Navigator.of(context).pop();
