@@ -21,6 +21,7 @@ class DartApp extends StatelessWidget {
 
 GameModes gameMode;
 int userCount;
+bool someoneFinished;
 
 class HomeScreen extends StatefulWidget {
   HomeScreen(GameModes selectedGameMode, chosenUserCount) {
@@ -36,36 +37,57 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Dartoclock'),
-        actions: <Widget>[
-          IconButton(icon: Icon(Icons.stop), onPressed: _showQuitGameDialog)
+    return Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+        begin: Alignment.bottomCenter,
+        end: Alignment.topCenter,
+        colors: [
+          Color.fromRGBO(245, 68, 113, 1.0),
+          Color.fromRGBO(245, 161, 81, 1.0),
         ],
-      ),
-      body: ListView(children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              margin: EdgeInsets.all(12),
-              child: Center(
-                child: Column(children: [
-                  Text(
-                    gameMode.toString().split('.').last + ' game',
-                    textAlign: TextAlign.center,
-                    softWrap: true,
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Text(_loadGameModeDescription())
-                ]),
-              ),
-            ),
-            for (int i = 1; i <= userCount; i++) UserScreen(name: 'Player $i'),
+      )),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Dartoclock'),
+          actions: <Widget>[
+            IconButton(icon: Icon(Icons.stop), onPressed: _showQuitGameDialog)
           ],
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
         ),
-      ]),
-      bottomNavigationBar: _buildNavigation(context),
+        backgroundColor: Colors.transparent,
+        body: ListView(children: [
+          Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.all(20),
+                  child: Center(
+                    child: Column(children: [
+                      Text(
+                        gameMode.toString().split('.').last + ' game',
+                        textAlign: TextAlign.center,
+                        softWrap: true,
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                      Text(
+                        _loadGameModeDescription(),
+                        style: TextStyle(color: Colors.white),
+                      )
+                    ]),
+                  ),
+                ),
+                for (int i = 1; i <= userCount; i++)
+                  UserScreen(name: 'Player $i'),
+              ],
+            ),
+          ),
+        ]),
+        bottomNavigationBar: _buildNavigation(context),
+      ),
     );
   }
 
@@ -77,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case GameModes.Countdown:
         return 'Throw each number once starting from 20. The first one to 1 and throw it wins';
     }
+    return '';
   }
 
   /// This shows the dialog that asks if you want to quit the current game
@@ -115,7 +138,8 @@ Widget _buildNavigation(BuildContext context) {
     currentIndex: 0,
     selectedItemColor: Colors.white,
     unselectedItemColor: Colors.white60,
-    backgroundColor: Theme.of(context).primaryColor,
+    backgroundColor: Colors.transparent,
+    elevation: 0,
     selectedFontSize: 14,
     unselectedFontSize: 14,
     onTap: (value) {
@@ -140,14 +164,14 @@ Widget _buildNavigation(BuildContext context) {
 
 class UserScreen extends StatefulWidget {
   UserScreen({this.name});
-  String name;
+  final String name;
   @override
-  _UserScreenState createState() => _UserScreenState();
+  _UserScreenState createState() => _UserScreenState(name: name);
 }
 
-bool someoneFinished;
-
 class _UserScreenState extends State<UserScreen> {
+  _UserScreenState({this.name});
+  String name;
   final _textFieldController = TextEditingController();
   int score;
   int startScore;
@@ -159,11 +183,14 @@ class _UserScreenState extends State<UserScreen> {
   @override
   void initState() {
     super.initState();
-    getSharedPrefs();
+    _getSharedPrefs();
     currentCountdownThrow = countDownStart;
   }
 
-  Future<void> getSharedPrefs() async {
+  /// Loads the startScore from the shared preferences,
+  /// or if they haven't been set/altered yet, loads them with the
+  /// default value of 360.
+  Future<void> _getSharedPrefs() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       startScore = prefs.getInt('classicPoints') ?? 360;
@@ -173,18 +200,28 @@ class _UserScreenState extends State<UserScreen> {
 
   Widget _buildNameRow() {
     // Set the original player name in the textField
-    _textFieldController.text = widget.name;
+    _textFieldController.text = name;
 
-    return Center(
-      heightFactor: 1.2,
+    return Container(
+      margin: EdgeInsets.all(10),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Expanded(
-            child: Text(widget.name,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headline5,
-                overflow: TextOverflow.ellipsis),
+          Container(
+            margin: EdgeInsets.only(top: 10.0),
+            child: Hero(
+              tag: name + '_user',
+              child: Material(
+                color: Colors.transparent,
+                child: Text(
+                  name,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 22),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
           ),
           IconButton(
             icon: Icon(Icons.edit),
@@ -195,6 +232,7 @@ class _UserScreenState extends State<UserScreen> {
                     return AlertDialog(
                       title: Text('Editing player name'),
                       content: TextField(
+                        maxLength: 20,
                         controller: _textFieldController,
                       ),
                       actions: <Widget>[
@@ -203,7 +241,7 @@ class _UserScreenState extends State<UserScreen> {
                           onPressed: () {
                             if (_textFieldController.text.length > 0) {
                               setState(() {
-                                widget.name = _textFieldController.text;
+                                name = _textFieldController.text;
                               });
                               Navigator.of(context).pop();
                             } else {
@@ -221,18 +259,17 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
-  Widget _buildGameModeRow() {
+  Widget _buildGameMode() {
     switch (gameMode) {
-      case GameModes.Classic:
-        return _buildClassicScoreColumn();
-        break;
       case GameModes.Countdown:
-        return _buildCountdownScoreColumn();
+        return _buildCountdownGame();
         break;
+      default:
+        return _buildClassicGame();
     }
   }
 
-  String _buildCountdownTextField() {
+  String _buildCountdownThrowsTextField() {
     String textBuilder = '';
     for (int i = countDownStart; i > 0; i--) {
       // If i is bigger, the throw has already been completed
@@ -245,7 +282,7 @@ class _UserScreenState extends State<UserScreen> {
     return textBuilder;
   }
 
-  Widget _buildCountdownScoreColumn() {
+  Widget _buildCountdownGame() {
     return Column(children: [
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Visibility(
@@ -264,10 +301,10 @@ class _UserScreenState extends State<UserScreen> {
             setState(() {
               if (currentCountdownThrow > 0) {
                 currentCountdownThrow--;
-              };
+              }
               if (currentCountdownThrow == 0 && !someoneFinished) {
                 someoneFinished = true;
-               _showWinningDialog();
+                _showWinningDialog();
               }
             });
           },
@@ -286,7 +323,7 @@ class _UserScreenState extends State<UserScreen> {
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => HistoryWindow(
-                      widget.name, previousScoreList, score, startScore)));
+                      name, previousScoreList, score, startScore)));
             },
           ),
         ),
@@ -294,13 +331,13 @@ class _UserScreenState extends State<UserScreen> {
       Container(
           margin: EdgeInsets.all(10.0),
           child: Text(
-            _buildCountdownTextField(),
+            _buildCountdownThrowsTextField(),
             style: TextStyle(height: 1.5),
           )),
     ]);
   }
 
-  Widget _buildClassicScoreColumn() {
+  Widget _buildClassicGame() {
     return Column(children: [
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Visibility(
@@ -314,31 +351,30 @@ class _UserScreenState extends State<UserScreen> {
           ),
         ),
         OutlineButton(
-          textColor: Colors.green,
-          onPressed: () async {
-            final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        AddPointsScreen(startScore: score, user: widget.name)));
-            if (result != null) {
-              setState(() {
-                score = result;
-                previousScoreList.add(result);
-                if (score == 0 && !someoneFinished) {
-                  setState(() {
-                    someoneFinished = true;
-                    _showWinningDialog();
-                  });
-                }
-              });
-            }
-          },
-          child: Text(
-            score.toString(),
-            style: TextStyle(fontSize: 18),
-          ),
-        ),
+            textColor: Colors.green,
+            onPressed: () async {
+              final result = await Navigator.of(context).push(PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    AddPointsScreen(
+                        startScore: score,
+                        user: name,
+                        previousThrowText: _generatePreviousThrow()),
+                transitionDuration: Duration(milliseconds: 1000),
+              ));
+              if (result != null) {
+                setState(() {
+                  score = result;
+                  previousScoreList.add(result);
+                  if (score == 0 && !someoneFinished) {
+                    setState(() {
+                      someoneFinished = true;
+                      _showWinningDialog();
+                    });
+                  }
+                });
+              }
+            },
+            child: Text('Add a throw')),
         Visibility(
           visible: previousScoreList.isNotEmpty,
           maintainSize: true,
@@ -349,16 +385,22 @@ class _UserScreenState extends State<UserScreen> {
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => HistoryWindow(
-                      widget.name, previousScoreList, score, startScore)));
+                      name, previousScoreList, score, startScore)));
             },
           ),
         ),
       ]),
       Container(
         margin: EdgeInsets.all(10),
-        child: Text(
-          'Previous throw: ' + _generatePreviousThrow(),
-          style: TextStyle(fontSize: 16),
+        child: Hero(
+          tag: name + '_previous_throw',
+          child: Material(
+            color: Colors.transparent,
+            child: Text(
+              'Previous throw: ' + _generatePreviousThrow(),
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
         ),
       )
     ]);
@@ -366,16 +408,95 @@ class _UserScreenState extends State<UserScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      //padding: EdgeInsets.all(10.0),
-      margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-      decoration: BoxDecoration(
-          border: Border.all(width: 3.0),
-          borderRadius: BorderRadius.all(Radius.circular(10.0))),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        _buildNameRow(),
-        _buildGameModeRow(),
-      ]),
+    return Padding(
+      padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 30.0),
+      child: Stack(
+        children: [
+          Hero(
+            tag: name + "_backIcon",
+            child: Material(
+              type: MaterialType.transparency,
+              child: Container(
+                height: 0,
+                width: 0,
+                child: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: null,
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                return showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Editing player name'),
+                        content: TextField(
+                          maxLength: 20,
+                          controller: _textFieldController,
+                        ),
+                        actions: <Widget>[
+                          new FlatButton(
+                            child: new Text('SAVE'),
+                            onPressed: () {
+                              if (_textFieldController.text.length > 0) {
+                                setState(() {
+                                  name = _textFieldController.text;
+                                });
+                                Navigator.of(context).pop();
+                              } else {
+                                Navigator.of(context).pop();
+                              }
+                            },
+                          )
+                        ],
+                      );
+                    });
+              },
+            ),
+          ),
+          Positioned.fill(
+            child: Hero(
+              tag: name + "_background",
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withAlpha(70),
+                          offset: Offset(3.0, 10.0),
+                          blurRadius: 15.0)
+                    ]),
+                margin: EdgeInsets.all(3.0),
+              ),
+            ),
+          ),
+          Column(children: [
+            _buildNameRow(),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: Hero(
+                tag: name + '_score',
+                child: Material(
+                  color: Colors.transparent,
+                  child: Text(
+                    'Score to throw: ' + score.toString(),
+                    style: TextStyle(
+                        fontSize: 18, backgroundColor: Colors.transparent),
+                  ),
+                ),
+              ),
+            ),
+            _buildGameMode(),
+          ]),
+        ],
+      ),
     );
   }
 
@@ -386,7 +507,7 @@ class _UserScreenState extends State<UserScreen> {
           return AlertDialog(
             title: Text('Game won!'),
             content: Text('Good news, ' +
-                widget.name +
+                name +
                 ' won the game! Do you want to finish the game? (You can always'
                     ' finish the game by pressing the stop icon in '
                     'the top right of the screen.)'),
@@ -457,6 +578,8 @@ class _UserScreenState extends State<UserScreen> {
         });
   }
 
+  /// Generates the number that was thrown, or says 'this is your first throw',
+  /// if no throws have been thrown.
   String _generatePreviousThrow() {
     String text = "";
     if (previousScoreList.isEmpty) {
