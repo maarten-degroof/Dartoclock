@@ -1,4 +1,6 @@
+import 'package:dartoclock/BottomNavigation.dart';
 import 'package:dartoclock/gameModesEnum.dart';
+import 'package:dartoclock/gamePlaying.dart';
 import 'package:flutter/material.dart';
 
 import 'main.dart';
@@ -70,9 +72,11 @@ class _GameChoiceScreenState extends State<GameChoiceScreen> {
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
                 onPressed: () {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => HomeScreen(GameModes.Classic, users),
-                  ));
+                  GamePlaying.isPlayingAGame = true;
+                  Navigator.of(context).pushNamed(
+                    '/game',
+                    arguments: HomeArguments(GameModes.Classic, users),
+                  );
                 },
                 child: Text('Classic'),
               ),
@@ -80,45 +84,17 @@ class _GameChoiceScreenState extends State<GameChoiceScreen> {
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
                 onPressed: () {
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => HomeScreen(GameModes.Countdown, users),
-                  ));
+                  GamePlaying.isPlayingAGame = true;
+                  Navigator.of(context).pushNamed(
+                    '/game',
+                    arguments: HomeArguments(GameModes.Countdown, users),
+                  );
                 },
                 child: Text('Countdown'),
               ),
             ]),
       ),
-      bottomNavigationBar: _buildNavigation(context),
+      bottomNavigationBar: BottomNavigation(index: 0),
     );
   }
-}
-
-/// This builds the bottom navigation bar
-Widget _buildNavigation(BuildContext context) {
-  return BottomNavigationBar(
-    type: BottomNavigationBarType.fixed,
-    currentIndex: 0,
-    selectedItemColor: Colors.white,
-    unselectedItemColor: Colors.white60,
-    backgroundColor: Theme.of(context).primaryColor,
-    selectedFontSize: 14,
-    unselectedFontSize: 14,
-    onTap: (value) {
-      switch (value) {
-        case 3:
-          Navigator.of(context).push(MaterialPageRoute<void>(
-            builder: (context) => SettingsScreen(),
-          ));
-      }
-    },
-    items: [
-      BottomNavigationBarItem(
-          title: Text('Game'), icon: Icon(Icons.play_arrow)),
-      BottomNavigationBarItem(title: Text('Unknown'), icon: Icon(Icons.help)),
-      BottomNavigationBarItem(
-          title: Text('Rules'), icon: Icon(Icons.library_books)),
-      BottomNavigationBarItem(
-          title: Text('Settings'), icon: Icon(Icons.settings))
-    ],
-  );
 }

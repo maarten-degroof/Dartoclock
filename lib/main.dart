@@ -1,9 +1,11 @@
 import 'package:dartoclock/gameModesEnum.dart';
+import 'package:dartoclock/gamePlaying.dart';
 import 'package:dartoclock/history.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'BottomNavigation.dart';
 import 'addPoints.dart';
 import 'settings.dart';
 import 'gameChoice.dart';
@@ -15,7 +17,15 @@ void main() {
 class DartApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Dartoclock', home: GameChoiceScreen());
+    return MaterialApp(
+      title: 'Dartoclock',
+      initialRoute: '/gameChoice',
+      routes: {
+        '/gameChoice': (context) => GameChoiceScreen(),
+        '/game': (context) => HomeScreen(),
+        '/settings': (context) => SettingsScreen(),
+      },
+    );
   }
 }
 
@@ -24,9 +34,7 @@ int userCount;
 bool someoneFinished;
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen(GameModes selectedGameMode, chosenUserCount) {
-    gameMode = selectedGameMode;
-    userCount = chosenUserCount;
+  HomeScreen() {
     someoneFinished = false;
   }
 
@@ -34,9 +42,20 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+class HomeArguments {
+  final GameModes gameMode;
+  final int userCount;
+
+  HomeArguments(this.gameMode, this.userCount);
+}
+
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    final HomeArguments args = ModalRoute.of(context).settings.arguments;
+    gameMode = args.gameMode;
+    userCount = args.userCount;
+
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -47,46 +66,51 @@ class _HomeScreenState extends State<HomeScreen> {
           Color.fromRGBO(245, 161, 81, 1.0),
         ],
       )),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Dartoclock'),
-          actions: <Widget>[
-            IconButton(icon: Icon(Icons.stop), onPressed: _showQuitGameDialog)
-          ],
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-        ),
-        backgroundColor: Colors.transparent,
-        body: ListView(children: [
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: EdgeInsets.all(20),
-                  child: Center(
-                    child: Column(children: [
-                      Text(
-                        gameMode.toString().split('.').last + ' game',
-                        textAlign: TextAlign.center,
-                        softWrap: true,
-                        style: TextStyle(fontSize: 20, color: Colors.white),
-                      ),
-                      Text(
-                        _loadGameModeDescription(),
-                        style: TextStyle(color: Colors.white),
-                      )
-                    ]),
-                  ),
-                ),
-                for (int i = 1; i <= userCount; i++)
-                  UserScreen(name: 'Player $i'),
-              ],
-            ),
+      child: WillPopScope(
+        onWillPop: _showQuitGameDialog,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Dartoclock'),
+            leading: IconButton(
+                icon: Icon(Icons.stop), onPressed: _showQuitGameDialog),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
           ),
-        ]),
-        bottomNavigationBar: _buildNavigation(context),
+          backgroundColor: Colors.transparent,
+          body: ListView(children: [
+            Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: EdgeInsets.all(20),
+                    child: Center(
+                      child: Column(children: [
+                        Text(
+                          gameMode.toString().split('.').last + ' game',
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
+                        Text(
+                          _loadGameModeDescription(),
+                          style: TextStyle(color: Colors.white),
+                        )
+                      ]),
+                    ),
+                  ),
+                  for (int i = 1; i <= userCount; i++)
+                    UserScreen(name: 'Player $i'),
+                ],
+              ),
+            ),
+          ]),
+          bottomNavigationBar: BottomNavigation(
+            index: 0,
+          ),
+          //bottomNavigationBar: _buildNavigation(context),
+        ),
       ),
     );
   }
@@ -104,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// This shows the dialog that asks if you want to quit the current game
   /// So you can choose a different game mode or start over
-  Future<dynamic> _showQuitGameDialog() {
+  Future<bool> _showQuitGameDialog() {
     return showDialog(
         context: context,
         builder: (context) {
@@ -116,50 +140,22 @@ class _HomeScreenState extends State<HomeScreen> {
               new FlatButton(
                 child: new Text('QUIT'),
                 onPressed: () {
-                  Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                          builder: (context) => GameChoiceScreen()),
-                      (route) => false);
+                  GamePlaying.isPlayingAGame = false;
+                  Navigator.of(context)
+                      .popUntil(ModalRoute.withName('/gameChoice'));
+                  return true;
                 },
               ),
               new FlatButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    return false;
+                  },
                   child: new Text('CANCEL'))
             ],
           );
         });
   }
-}
-
-/// This builds the bottom navigation bar
-Widget _buildNavigation(BuildContext context) {
-  return BottomNavigationBar(
-    type: BottomNavigationBarType.fixed,
-    currentIndex: 0,
-    selectedItemColor: Colors.white,
-    unselectedItemColor: Colors.white60,
-    backgroundColor: Colors.transparent,
-    elevation: 0,
-    selectedFontSize: 14,
-    unselectedFontSize: 14,
-    onTap: (value) {
-      switch (value) {
-        case 3:
-          Navigator.of(context).push(MaterialPageRoute<void>(
-            builder: (context) => SettingsScreen(),
-          ));
-      }
-    },
-    items: [
-      BottomNavigationBarItem(
-          title: Text('Game'), icon: Icon(Icons.play_arrow)),
-      BottomNavigationBarItem(title: Text('Unknown'), icon: Icon(Icons.help)),
-      BottomNavigationBarItem(
-          title: Text('Rules'), icon: Icon(Icons.library_books)),
-      BottomNavigationBarItem(
-          title: Text('Settings'), icon: Icon(Icons.settings))
-    ],
-  );
 }
 
 class UserScreen extends StatefulWidget {

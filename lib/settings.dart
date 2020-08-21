@@ -5,6 +5,8 @@ import 'package:settings_ui/settings_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'BottomNavigation.dart';
+
 class SettingsScreen extends StatefulWidget {
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
@@ -106,7 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           )
         ],
       ),
-      bottomNavigationBar: _buildNavigation(context),
+      bottomNavigationBar: BottomNavigation(index: 3),
     );
   }
 
@@ -115,34 +117,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (await canLaunch(url)) {
       await launch(url);
     }
-  }
-
-  Widget _buildNavigation(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      currentIndex: 3,
-      selectedItemColor: Colors.white,
-      unselectedItemColor: Colors.white60,
-      backgroundColor: Theme
-          .of(context)
-          .primaryColor,
-      selectedFontSize: 14,
-      unselectedFontSize: 14,
-      onTap: (value) {
-        switch (value) {
-          case 0:
-            Navigator.of(context).pop();
-        }
-      },
-      items: [
-        BottomNavigationBarItem(
-            title: Text('Game'), icon: Icon(Icons.play_arrow)),
-        BottomNavigationBarItem(title: Text('Unknown'), icon: Icon(Icons.help)),
-        BottomNavigationBarItem(
-            title: Text('Rules'), icon: Icon(Icons.library_books)),
-        BottomNavigationBarItem(
-            title: Text('Settings'), icon: Icon(Icons.settings))
-      ],
-    );
   }
 }
