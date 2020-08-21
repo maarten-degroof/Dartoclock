@@ -7,8 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'BottomNavigation.dart';
 import 'addPoints.dart';
-import 'settings.dart';
 import 'gameChoice.dart';
+import 'settings.dart';
 
 void main() {
   runApp(DartApp());

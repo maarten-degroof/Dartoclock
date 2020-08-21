@@ -12,7 +12,7 @@ class BottomNavigation extends StatelessWidget {
       currentIndex: index,
       selectedItemColor: Colors.white,
       unselectedItemColor: Colors.white60,
-      backgroundColor: Colors.green,
+      backgroundColor: Colors.transparent,
       elevation: 0,
       selectedFontSize: 14,
       unselectedFontSize: 14,
