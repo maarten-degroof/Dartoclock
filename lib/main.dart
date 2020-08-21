@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'BottomNavigation.dart';
+import 'bottomNavigation.dart';
 import 'addPoints.dart';
 import 'gameChoice.dart';
 import 'settings.dart';

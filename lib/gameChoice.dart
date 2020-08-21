@@ -1,4 +1,4 @@
-import 'package:dartoclock/BottomNavigation.dart';
+import 'package:dartoclock/bottomNavigation.dart';
 import 'package:dartoclock/gameModesEnum.dart';
 import 'package:dartoclock/gamePlaying.dart';
 import 'package:flutter/material.dart';

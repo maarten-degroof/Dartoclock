@@ -1,3 +1,4 @@
+import 'package:dartoclock/customIcons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,7 +6,7 @@ import 'package:settings_ui/settings_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'BottomNavigation.dart';
+import 'bottomNavigation.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -115,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SettingsTile(
                   title: 'GitHub',
                   subtitle: 'Go to the GitHub-page to find the latest release',
-                  leading: Icon(Icons.language),
+                  leading: Icon(CustomIcons.github_mark),
                   onTap: () {
                     _launchGithub();
                   },
