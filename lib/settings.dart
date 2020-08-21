@@ -38,77 +38,94 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Settings'),
-      ),
-      body: SettingsList(
-        sections: [
-          SettingsSection(title: 'Classic game', tiles: [
-            SettingsTile(
-              title: 'Score to reach',
-              subtitle: 'What is the score you want to start with? '
-                  'Changing this value will only affect future games. '
-                  'Default: 360. Currently: $classicPoints.',
-              leading: Icon(Icons.score),
-              onTap: () {
-                return showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('Classic start number'),
-                        content: TextField(
-                          keyboardType: TextInputType.number,
-                          controller: _classicTextFieldController,
-                          inputFormatters: <TextInputFormatter>[
-                            WhitelistingTextInputFormatter.digitsOnly,
-                            new LengthLimitingTextInputFormatter(4)
-                          ],
-                        ),
-                        actions: <Widget>[
-                          new FlatButton(
-                            child: new Text('SAVE'),
-                            onPressed: () {
-                              if (_classicTextFieldController.text.length > 0 &&
-                                  int.parse(_classicTextFieldController.text) >
-                                      0) {
-                                setState(() {
-                                  classicPoints = int.parse(
-                                      _classicTextFieldController.text);
-                                  setSharedPrefs();
-                                });
-                                Navigator.of(context).pop();
-                              } else {
-                                setState(() {
-                                  _classicTextFieldController.text =
-                                      classicPoints.toString();
-                                });
-                                Navigator.of(context).pop();
-                              }
-                            },
-                          )
-                        ],
-                      );
-                    });
-              },
-            )
-          ]),
-          SettingsSection(
-            title: 'General settings',
-            tiles: [
+    return Container(
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [
+              Color.fromRGBO(77, 85, 225, 1.0),
+              Color.fromRGBO(93, 167, 231, 1.0),
+            ],
+          )),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Settings'),
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        backgroundColor: Colors.transparent,
+        body: SettingsList(
+          backgroundColor: Colors.transparent,
+          sections: [
+            SettingsSection(title: 'Classic game', tiles: [
               SettingsTile(
-                title: 'GitHub',
-                subtitle: 'Go to the GitHub-page to find the latest release',
-                leading: Icon(Icons.language),
+                title: 'Score to reach',
+                subtitle: 'What is the score you want to start with? '
+                    'Changing this value will only affect future games. '
+                    'Default: 360. Currently: $classicPoints.',
+                leading: Icon(Icons.score),
                 onTap: () {
-                  _launchGithub();
+                  return showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Classic start number'),
+                          content: TextField(
+                            keyboardType: TextInputType.number,
+                            controller: _classicTextFieldController,
+                            inputFormatters: <TextInputFormatter>[
+                              WhitelistingTextInputFormatter.digitsOnly,
+                              new LengthLimitingTextInputFormatter(4)
+                            ],
+                          ),
+                          actions: <Widget>[
+                            new FlatButton(
+                              child: new Text('SAVE'),
+                              onPressed: () {
+                                if (_classicTextFieldController.text.length > 0 &&
+                                    int.parse(_classicTextFieldController.text) >
+                                        0) {
+                                  setState(() {
+                                    classicPoints = int.parse(
+                                        _classicTextFieldController.text);
+                                    setSharedPrefs();
+                                  });
+                                  Navigator.of(context).pop();
+                                } else {
+                                  setState(() {
+                                    _classicTextFieldController.text =
+                                        classicPoints.toString();
+                                  });
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                            )
+                          ],
+                        );
+                      });
                 },
               )
-            ],
-          )
-        ],
+            ]),
+            SettingsSection(
+              title: 'General settings',
+              tiles: [
+                SettingsTile(
+                  title: 'GitHub',
+                  subtitle: 'Go to the GitHub-page to find the latest release',
+                  leading: Icon(Icons.language),
+                  onTap: () {
+                    _launchGithub();
+                  },
+                )
+              ],
+            )
+          ],
+        ),
+        bottomNavigationBar: BottomNavigation(index: 3),
       ),
-      bottomNavigationBar: BottomNavigation(index: 3),
     );
   }
 
