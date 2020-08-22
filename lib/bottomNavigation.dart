@@ -27,6 +27,11 @@ class BottomNavigation extends StatelessWidget {
                       .popUntil(ModalRoute.withName('/gameChoice'));
             }
             break;
+          case 2:
+            if (ModalRoute.of(context)?.settings?.name != '/rules') {
+              Navigator.of(context).pushNamed('/rules');
+            }
+            break;
           case 3:
             if (ModalRoute.of(context)?.settings?.name != '/settings') {
               Navigator.of(context).pushNamed('/settings');

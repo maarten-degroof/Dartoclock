@@ -1,6 +1,7 @@
 import 'package:dartoclock/gameModesEnum.dart';
 import 'package:dartoclock/gamePlaying.dart';
 import 'package:dartoclock/history.dart';
+import 'package:dartoclock/rules.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,6 +24,7 @@ class DartApp extends StatelessWidget {
       routes: {
         '/gameChoice': (context) => GameChoiceScreen(),
         '/game': (context) => HomeScreen(),
+        '/rules': (context) => Rules(),
         '/settings': (context) => SettingsScreen(),
       },
     );
