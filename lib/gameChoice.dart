@@ -33,79 +33,81 @@ class _GameChoiceScreenState extends State<GameChoiceScreen> {
           backgroundColor: Colors.transparent,
         ),
         backgroundColor: Colors.transparent,
-        body: Container(
-          margin: EdgeInsets.all(14.0),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(
-                  height: 30,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.remove, color: Colors.white),
-                      onPressed: users == 1
-                          ? null
-                          : () {
-                              setState(() {
-                                users--;
-                              });
-                            },
-                      padding: EdgeInsets.all(0),
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        users.toString() + (users > 1 ? ' players' : ' player'),
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+        body: ListView(
+          children: [Container(
+            margin: EdgeInsets.all(14.0),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.remove, color: Colors.white),
+                        onPressed: users == 1
+                            ? null
+                            : () {
+                                setState(() {
+                                  users--;
+                                });
+                              },
+                        padding: EdgeInsets.all(0),
                       ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.add, color: Colors.white),
-                      onPressed: () {
-                        setState(() {
-                          users++;
-                        });
-                      },
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Text(
-                  'Welcome, choose your game mode to play.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                RaisedButton(
-                  onPressed: () {
-                    GamePlaying.isPlayingAGame = true;
-                    Navigator.of(context).pushNamed(
-                      '/game',
-                      arguments: HomeArguments(GameModes.Classic, users),
-                    );
-                  },
-                  child: Text('Classic'),
-                ),
-                RaisedButton(
-                  onPressed: () {
-                    GamePlaying.isPlayingAGame = true;
-                    Navigator.of(context).pushNamed(
-                      '/game',
-                      arguments: HomeArguments(GameModes.Countdown, users),
-                    );
-                  },
-                  child: Text('Countdown'),
-                ),
-              ]),
-        ),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          users.toString() + (users > 1 ? ' players' : ' player'),
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.add, color: Colors.white),
+                        onPressed: () {
+                          setState(() {
+                            users++;
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Text(
+                    'Welcome, choose your game mode to play.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  RaisedButton(
+                    onPressed: () {
+                      GamePlaying.isPlayingAGame = true;
+                      Navigator.of(context).pushNamed(
+                        '/game',
+                        arguments: HomeArguments(GameModes.Classic, users),
+                      );
+                    },
+                    child: Text('Classic'),
+                  ),
+                  RaisedButton(
+                    onPressed: () {
+                      GamePlaying.isPlayingAGame = true;
+                      Navigator.of(context).pushNamed(
+                        '/game',
+                        arguments: HomeArguments(GameModes.Countdown, users),
+                      );
+                    },
+                    child: Text('Countdown'),
+                  ),
+                ]),
+          ),
+        ]),
         bottomNavigationBar: BottomNavigation(index: 0),
       ),
     );
