@@ -13,6 +13,27 @@ class GameChoiceScreen extends StatefulWidget {
 class _GameChoiceScreenState extends State<GameChoiceScreen> {
   int users = 2;
 
+  Column generateGameModeButtons() {
+    Column column = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (GameModes mode in GameModes.values)
+          RaisedButton(
+            onPressed: () {
+              GamePlaying.isPlayingAGame = true;
+              Navigator.of(context).pushNamed(
+                '/game',
+                arguments: HomeArguments(mode, users),
+              );
+            },
+            child: Text(mode.toString().split('.').last),
+          ),
+      ],
+    );
+    return column;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -85,26 +106,7 @@ class _GameChoiceScreenState extends State<GameChoiceScreen> {
                   SizedBox(
                     height: 20,
                   ),
-                  RaisedButton(
-                    onPressed: () {
-                      GamePlaying.isPlayingAGame = true;
-                      Navigator.of(context).pushNamed(
-                        '/game',
-                        arguments: HomeArguments(GameModes.Classic, users),
-                      );
-                    },
-                    child: Text('Classic'),
-                  ),
-                  RaisedButton(
-                    onPressed: () {
-                      GamePlaying.isPlayingAGame = true;
-                      Navigator.of(context).pushNamed(
-                        '/game',
-                        arguments: HomeArguments(GameModes.Countdown, users),
-                      );
-                    },
-                    child: Text('Countdown'),
-                  ),
+                  generateGameModeButtons(),
                 ]),
           ),
         ]),
