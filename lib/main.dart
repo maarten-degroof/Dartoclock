@@ -95,9 +95,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           softWrap: true,
                           style: TextStyle(fontSize: 20, color: Colors.white),
                         ),
-                        Text(
-                          _loadGameModeDescription(),
-                          style: TextStyle(color: Colors.white),
+                        Container(
+                          margin: EdgeInsets.only(top: 5),
+                          child: Text(
+                            _loadGameModeDescription(),
+                            style: TextStyle(color: Colors.white),
+                            textAlign: TextAlign.center,
+                          ),
                         )
                       ]),
                     ),
@@ -120,10 +124,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String _loadGameModeDescription() {
     switch (gameMode) {
       case GameModes.Classic:
-        return 'The first one to get their counter to 0 wins';
+        return 'The first one to get their counter to 0 wins.';
         break;
       case GameModes.Countdown:
-        return 'Throw each number once starting from 20. The first one to 1 and throw it wins';
+        return 'Throw each number once starting from 20 and going to 1. The first person to throw all 20 numbers wins.';
     }
     return '';
   }
@@ -201,7 +205,7 @@ class _UserScreenState extends State<UserScreen> {
     _textFieldController.text = name;
 
     return Container(
-      margin: EdgeInsets.all(10),
+      margin: EdgeInsets.only(top: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -294,7 +298,6 @@ class _UserScreenState extends State<UserScreen> {
           ),
         ),
         OutlineButton(
-          textColor: Colors.green,
           onPressed: () {
             setState(() {
               if (currentCountdownThrow > 0) {
@@ -307,7 +310,7 @@ class _UserScreenState extends State<UserScreen> {
             });
           },
           child: Text(
-            currentCountdownThrow.toString(),
+            'I threw it',
             style: TextStyle(fontSize: 18),
           ),
         ),
@@ -349,7 +352,6 @@ class _UserScreenState extends State<UserScreen> {
           ),
         ),
         OutlineButton(
-            textColor: Colors.green,
             onPressed: () async {
               final result = await Navigator.of(context).push(PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) =>
@@ -478,13 +480,16 @@ class _UserScreenState extends State<UserScreen> {
           Column(children: [
             _buildNameRow(),
             Padding(
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(0),
               child: Hero(
                 tag: name + '_score',
                 child: Material(
                   color: Colors.transparent,
                   child: Text(
-                    'Score to throw: ' + score.toString(),
+                    'Score to throw: ' +
+                        (gameMode == GameModes.Classic
+                            ? score.toString()
+                            : currentCountdownThrow.toString()),
                     style: TextStyle(
                         fontSize: 18, backgroundColor: Colors.transparent),
                   ),
