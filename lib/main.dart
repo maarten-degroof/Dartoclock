@@ -286,6 +286,16 @@ class _UserScreenState extends State<UserScreen> {
 
   Widget _buildCountdownGame() {
     return Column(children: [
+      Hero(
+        tag: name + '_score',
+        child: Material(
+          color: Colors.transparent,
+          child: Text(
+            'Score to throw: ' + currentCountdownThrow.toString(),
+            style: TextStyle(fontSize: 18, backgroundColor: Colors.transparent),
+          ),
+        ),
+      ),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Visibility(
           visible: currentCountdownThrow < countDownStart,
@@ -340,6 +350,16 @@ class _UserScreenState extends State<UserScreen> {
 
   Widget _buildClassicGame() {
     return Column(children: [
+      Hero(
+        tag: name + '_score',
+        child: Material(
+          color: Colors.transparent,
+          child: Text(
+            'Score to throw: ' + score.toString(),
+            style: TextStyle(fontSize: 18, backgroundColor: Colors.transparent),
+          ),
+        ),
+      ),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Visibility(
           visible: previousScoreList.isNotEmpty,
@@ -426,40 +446,6 @@ class _UserScreenState extends State<UserScreen> {
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.topRight,
-            child: IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                return showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text('Editing player name'),
-                        content: TextField(
-                          maxLength: 20,
-                          controller: _textFieldController,
-                        ),
-                        actions: <Widget>[
-                          new FlatButton(
-                            child: new Text('SAVE'),
-                            onPressed: () {
-                              if (_textFieldController.text.length > 0) {
-                                setState(() {
-                                  name = _textFieldController.text;
-                                });
-                                Navigator.of(context).pop();
-                              } else {
-                                Navigator.of(context).pop();
-                              }
-                            },
-                          )
-                        ],
-                      );
-                    });
-              },
-            ),
-          ),
           Positioned.fill(
             child: Hero(
               tag: name + "_background",
@@ -479,23 +465,6 @@ class _UserScreenState extends State<UserScreen> {
           ),
           Column(children: [
             _buildNameRow(),
-            Padding(
-              padding: EdgeInsets.all(0),
-              child: Hero(
-                tag: name + '_score',
-                child: Material(
-                  color: Colors.transparent,
-                  child: Text(
-                    'Score to throw: ' +
-                        (gameMode == GameModes.Classic
-                            ? score.toString()
-                            : currentCountdownThrow.toString()),
-                    style: TextStyle(
-                        fontSize: 18, backgroundColor: Colors.transparent),
-                  ),
-                ),
-              ),
-            ),
             _buildGameMode(),
           ]),
         ],
