@@ -97,7 +97,7 @@ class _RulesState extends State<Rules> {
             ),
           ),
         ),
-        bottomNavigationBar: BottomNavigation(index: 2),
+        bottomNavigationBar: BottomNavigation(index: 1),
       ),
     );
   }

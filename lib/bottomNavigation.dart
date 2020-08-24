@@ -27,12 +27,12 @@ class BottomNavigation extends StatelessWidget {
                       .popUntil(ModalRoute.withName('/gameChoice'));
             }
             break;
-          case 2:
+          case 1:
             if (ModalRoute.of(context)?.settings?.name != '/rules') {
               Navigator.of(context).pushNamed('/rules');
             }
             break;
-          case 3:
+          case 2:
             if (ModalRoute.of(context)?.settings?.name != '/settings') {
               Navigator.of(context).pushNamed('/settings');
             }
@@ -41,7 +41,6 @@ class BottomNavigation extends StatelessWidget {
       items: [
         BottomNavigationBarItem(
             title: Text('Game'), icon: Icon(Icons.play_arrow)),
-        BottomNavigationBarItem(title: Text('Unknown'), icon: Icon(Icons.help)),
         BottomNavigationBarItem(
             title: Text('Rules'), icon: Icon(Icons.library_books)),
         BottomNavigationBarItem(
