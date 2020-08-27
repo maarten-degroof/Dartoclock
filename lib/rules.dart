@@ -44,7 +44,8 @@ class _RulesState extends State<Rules> {
     rulesList.add(Item(
       id: 1,
       headerValue: 'Countdown game',
-      expandedValue: 'In this game mode the goal is to throw all 20 numbers once. '
+      expandedValue:
+          'In this game mode the goal is to throw all 20 numbers once. '
           'You start the first round at 20. Once you throw the number 20, '
           'you need to throw 19, going down until they reach 1. '
           '\n\nThe first person to throw 1 and thus the first person to throw '

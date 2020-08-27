@@ -3,7 +3,7 @@ import 'package:dartoclock/gameModesEnum.dart';
 import 'package:dartoclock/gamePlaying.dart';
 import 'package:flutter/material.dart';
 
-import 'main.dart';
+import 'game.dart';
 
 class GameChoiceScreen extends StatefulWidget {
   @override
