@@ -52,13 +52,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [
-              Color.fromRGBO(77, 85, 225, 1.0),
-              Color.fromRGBO(93, 167, 231, 1.0),
-            ],
-          )),
+        begin: Alignment.bottomCenter,
+        end: Alignment.topCenter,
+        colors: [
+          Color.fromRGBO(77, 85, 225, 1.0),
+          Color.fromRGBO(93, 167, 231, 1.0),
+        ],
+      )),
       child: Scaffold(
         appBar: AppBar(
           title: Text('Settings'),
@@ -98,8 +98,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               new FlatButton(
                                 child: new Text('SAVE'),
                                 onPressed: () {
-                                  if (_classicTextFieldController.text.length > 0 &&
-                                      int.parse(_classicTextFieldController.text) >
+                                  if (_classicTextFieldController.text.length >
+                                          0 &&
+                                      int.parse(_classicTextFieldController
+                                              .text) >
                                           0) {
                                     setState(() {
                                       classicPoints = int.parse(
@@ -127,7 +129,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 tiles: [
                   SettingsTile(
                     title: 'GitHub',
-                    subtitle: 'Go to the GitHub-page to find the latest release.',
+                    subtitle:
+                        'Go to the GitHub-page to find the latest release.',
                     leading: Icon(CustomIcons.github_mark),
                     onTap: () {
                       _launchGithub();
@@ -143,7 +146,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: BottomNavigation(index: 2),
+        bottomNavigationBar: BottomNavigation(index: 3),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:dartoclock/gameModesEnum.dart';
 import 'package:dartoclock/gamePlaying.dart';
 import 'package:dartoclock/history.dart';
+import 'package:dartoclock/statistics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,22 +31,35 @@ class HomeArguments {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool hasSentStatistics;
+
+  @override
+  void initState() {
+    super.initState();
+    hasSentStatistics = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final HomeArguments args = ModalRoute.of(context).settings.arguments;
     gameMode = args.gameMode;
     userCount = args.userCount;
 
+    if (!hasSentStatistics) {
+      Statistics.startedGame(gameMode);
+      hasSentStatistics = true;
+    }
+
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [
-              Color.fromRGBO(245, 68, 113, 1.0),
-              Color.fromRGBO(245, 161, 81, 1.0),
-            ],
-          )),
+        begin: Alignment.bottomCenter,
+        end: Alignment.topCenter,
+        colors: [
+          Color.fromRGBO(245, 68, 113, 1.0),
+          Color.fromRGBO(245, 161, 81, 1.0),
+        ],
+      )),
       child: WillPopScope(
         onWillPop: _showQuitGameDialog,
         child: Scaffold(
@@ -365,6 +379,7 @@ class _UserScreenState extends State<UserScreen> {
                   previousScoreList.add(result);
                   if (score == 0 && !someoneFinished) {
                     setState(() {
+                      Statistics.finishedGame(gameMode);
                       someoneFinished = true;
                       _showWinningDialog();
                     });
@@ -468,7 +483,7 @@ class _UserScreenState extends State<UserScreen> {
                   Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(
                           builder: (context) => GameChoiceScreen()),
-                          (route) => false);
+                      (route) => false);
                 },
               ),
               new FlatButton(
@@ -539,7 +554,7 @@ class _UserScreenState extends State<UserScreen> {
         text += (startScore - previousScoreList.last).toString();
       } else {
         text += (previousScoreList[previousScoreList.length - 2] -
-            previousScoreList.last)
+                previousScoreList.last)
             .toString();
       }
     }

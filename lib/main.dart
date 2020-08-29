@@ -1,4 +1,6 @@
 import 'package:dartoclock/rules.dart';
+import 'package:dartoclock/statistics.dart';
+import 'package:dartoclock/statisticsScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +15,8 @@ void main() {
 class DartApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    Statistics.initialise();
+
     return MaterialApp(
       title: 'Dartoclock',
       initialRoute: '/gameChoice',
@@ -21,6 +25,7 @@ class DartApp extends StatelessWidget {
         '/game': (context) => HomeScreen(),
         '/rules': (context) => Rules(),
         '/settings': (context) => SettingsScreen(),
+        '/statistics': (context) => StatisticsScreen(),
       },
     );
   }

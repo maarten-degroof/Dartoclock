@@ -33,6 +33,11 @@ class BottomNavigation extends StatelessWidget {
             }
             break;
           case 2:
+            if (ModalRoute.of(context)?.settings?.name != '/statistics') {
+              Navigator.of(context).pushNamed('/statistics');
+            }
+            break;
+          case 3:
             if (ModalRoute.of(context)?.settings?.name != '/settings') {
               Navigator.of(context).pushNamed('/settings');
             }
@@ -44,7 +49,9 @@ class BottomNavigation extends StatelessWidget {
         BottomNavigationBarItem(
             title: Text('Rules'), icon: Icon(Icons.library_books)),
         BottomNavigationBarItem(
-            title: Text('Settings'), icon: Icon(Icons.settings))
+            title: Text('Statistics'), icon: Icon(Icons.assessment)),
+        BottomNavigationBarItem(
+            title: Text('Settings'), icon: Icon(Icons.settings)),
       ],
     );
   }
