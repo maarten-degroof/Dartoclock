@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bottomNavigation.dart';
 import 'addPoints.dart';
-import 'gameChoice.dart';
 
 GameModes gameMode;
 int userCount;
@@ -98,8 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ]),
                     ),
                   ),
-                  for (int i = 1; i <= userCount; i++)
-                    UserScreen(name: 'Player $i'),
+                  for (int i = 1; i <= userCount; i++) UserScreen(id: i),
                 ],
               ),
             ),
@@ -157,14 +155,15 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class UserScreen extends StatefulWidget {
-  UserScreen({this.name});
-  final String name;
+  UserScreen({this.id});
+  final int id;
   @override
-  _UserScreenState createState() => _UserScreenState(name: name);
+  _UserScreenState createState() => _UserScreenState(id: id);
 }
 
 class _UserScreenState extends State<UserScreen> {
-  _UserScreenState({this.name});
+  _UserScreenState({this.id});
+  final int id;
   String name;
   final _textFieldController = TextEditingController();
   int score;
@@ -179,6 +178,7 @@ class _UserScreenState extends State<UserScreen> {
     super.initState();
     _getSharedPrefs();
     currentCountdownThrow = countDownStart;
+    name = 'Player $id';
   }
 
   /// Loads the startScore from the shared preferences,
@@ -205,7 +205,7 @@ class _UserScreenState extends State<UserScreen> {
           Container(
             margin: EdgeInsets.only(top: 10.0),
             child: Hero(
-              tag: name + '_user',
+              tag: id.toString() + '_user',
               child: Material(
                 color: Colors.transparent,
                 child: Text(
@@ -279,7 +279,7 @@ class _UserScreenState extends State<UserScreen> {
   Widget _buildCountdownGame() {
     return Column(children: [
       Hero(
-        tag: name + '_score',
+        tag: id.toString() + '_score',
         child: Material(
           color: Colors.transparent,
           child: Text(
@@ -343,7 +343,7 @@ class _UserScreenState extends State<UserScreen> {
   Widget _buildClassicGame() {
     return Column(children: [
       Hero(
-        tag: name + '_score',
+        tag: id.toString() + '_score',
         child: Material(
           color: Colors.transparent,
           child: Text(
@@ -370,6 +370,7 @@ class _UserScreenState extends State<UserScreen> {
                     AddPointsScreen(
                         startScore: score,
                         user: name,
+                        userId: id,
                         previousThrowText: _generatePreviousThrow()),
                 transitionDuration: Duration(milliseconds: 1000),
               ));
@@ -406,7 +407,7 @@ class _UserScreenState extends State<UserScreen> {
       Container(
         margin: EdgeInsets.all(10),
         child: Hero(
-          tag: name + '_previous_throw',
+          tag: id.toString() + '_previous_throw',
           child: Material(
             color: Colors.transparent,
             child: Text(
@@ -426,7 +427,7 @@ class _UserScreenState extends State<UserScreen> {
       child: Stack(
         children: [
           Hero(
-            tag: name + "_backIcon",
+            tag: id.toString() + "_backIcon",
             child: Material(
               type: MaterialType.transparency,
               child: Container(
@@ -441,7 +442,7 @@ class _UserScreenState extends State<UserScreen> {
           ),
           Positioned.fill(
             child: Hero(
-              tag: name + "_background",
+              tag: id.toString() + "_background",
               child: Container(
                 decoration: BoxDecoration(
                     color: Colors.white,

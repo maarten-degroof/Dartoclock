@@ -4,8 +4,14 @@ import 'package:flutter/services.dart';
 class AddPointsScreen extends StatefulWidget {
   final int startScore;
   final String user;
+  final int userId;
   final String previousThrowText;
-  AddPointsScreen({Key key, this.startScore, this.user, this.previousThrowText})
+  AddPointsScreen(
+      {Key key,
+      this.startScore,
+      this.user,
+      this.userId,
+      this.previousThrowText})
       : super(key: key);
 
   @override
@@ -134,7 +140,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
       onWillPop: _onWillPop,
       child: Stack(children: [
         Hero(
-          tag: widget.user + "_background",
+          tag: widget.userId.toString() + "_background",
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -148,7 +154,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
             backgroundColor: Colors.transparent,
             elevation: 0.0,
             leading: Hero(
-              tag: widget.user + "_backIcon",
+              tag: widget.userId.toString() + "_backIcon",
               child: Material(
                 color: Colors.transparent,
                 type: MaterialType.transparency,
@@ -172,7 +178,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Hero(
-                      tag: widget.user + '_user',
+                      tag: widget.userId.toString() + '_user',
                       child: Material(
                         color: Colors.transparent,
                         child: Text(
@@ -182,7 +188,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                       ),
                     ),
                     Hero(
-                      tag: widget.user + '_score',
+                      tag: widget.userId.toString() + '_score',
                       child: Material(
                         color: Colors.transparent,
                         child: Text(
@@ -194,7 +200,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                       ),
                     ),
                     Hero(
-                      tag: widget.user + '_previous_throw',
+                      tag: widget.userId.toString() + '_previous_throw',
                       child: Material(
                         color: Colors.transparent,
                         child: Text(
