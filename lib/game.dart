@@ -478,14 +478,11 @@ class _UserScreenState extends State<UserScreen> {
                     'the top right of the screen.)'),
             actions: <Widget>[
               new FlatButton(
-                child: new Text('FINISH'),
-                onPressed: () {
-                  Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                          builder: (context) => GameChoiceScreen()),
-                      (route) => false);
-                },
-              ),
+                  child: new Text('FINISH'),
+                  onPressed: () {
+                    Navigator.of(context)
+                        .popUntil(ModalRoute.withName('/gameChoice'));
+                  }),
               new FlatButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: new Text('CANCEL'))
