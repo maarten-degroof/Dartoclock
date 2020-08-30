@@ -543,6 +543,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                                                   ),
                                                 ),
                                               ),
+                                              Text('(The heart icon is currently the bull (25 points) and the bell icon is bullseye (50 points). These icons will be changed in the future.)'),
                                               Container(
                                                   margin: EdgeInsets.all(16),
                                                   child: Row(
