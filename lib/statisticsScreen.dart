@@ -1,5 +1,7 @@
+import 'package:countup/countup.dart';
 import 'package:dartoclock/gameModesEnum.dart';
 import 'package:dartoclock/statistics.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'bottomNavigation.dart';
@@ -58,7 +60,52 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 children: [
                   Card(
                       elevation: 8,
-                      margin: EdgeInsets.all(10),
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: Column(
+                        children: [
+                          Row(children: [
+                            Spacer(),
+                            Container(
+                                margin: EdgeInsets.only(top: 10, bottom: 5),
+                                child: Text(
+                                  'Games started',
+                                  style: TextStyle(fontSize: 20),
+                                )),
+                            Spacer(),
+                          ]),
+                          Countup(
+                            begin: 0,
+                            end: Statistics.totalStartedGames(),
+                            duration: Duration(seconds: 3),
+                            style: TextStyle(fontSize: 30),
+                            curve: Curves.ease,
+                          ),
+                          Row(children: [
+                            Spacer(),
+                            Container(
+                                margin: EdgeInsets.only(top: 10, bottom: 5),
+                                child: Text(
+                                  'Games finished',
+                                  style: TextStyle(fontSize: 20),
+                                )),
+                            Spacer(),
+                          ]),
+                          Container(
+                            margin: EdgeInsets.only(bottom: 5),
+                            child: Countup(
+                              begin: 0,
+                              end: Statistics.totalFinishedGames(),
+                              duration: Duration(seconds: 3),
+                              style: TextStyle(fontSize: 30),
+                              curve: Curves.easeOut,
+                            ),
+                          ),
+                        ],
+                      )),
+
+                  Card(
+                      elevation: 8,
+                      margin: EdgeInsets.only(top: 10),
                       child: Column(children: [
                         Container(
                           child: Text(
@@ -70,13 +117,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         PieChart(
                           dataMap: totalGamesMap,
                           showChartValuesInPercentage: false,
-                          animationDuration: Duration(seconds: 2),
+                          animationDuration: Duration(seconds: 3),
                           chartValueStyle: defaultChartValueStyle.copyWith(
                             color: Colors.white60.withOpacity(0.9),
                           ),
                         ),
                       ])),
-                  //for()
                 ],
               ),
             ),

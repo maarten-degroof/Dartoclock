@@ -27,6 +27,14 @@ class Statistics {
     prefs.setDouble('countdownGamesFinished', countdownGamesFinished);
   }
 
+  static double totalStartedGames() {
+    return classicGamesStarted + countdownGamesStarted;
+  }
+
+  static double totalFinishedGames() {
+    return classicGamesFinished + countdownGamesFinished;
+  }
+
   static void startedGame(GameModes gameMode) {
     switch (gameMode) {
       case GameModes.Classic:
