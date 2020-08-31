@@ -380,7 +380,6 @@ class _UserScreenState extends State<UserScreen> {
                   previousScoreList.add(result);
                   if (score == 0 && !someoneFinished) {
                     setState(() {
-                      Statistics.finishedGame(gameMode);
                       someoneFinished = true;
                       _showWinningDialog();
                     });
@@ -467,6 +466,7 @@ class _UserScreenState extends State<UserScreen> {
   }
 
   Future<dynamic> _showWinningDialog() {
+    Statistics.finishedGame(gameMode);
     return showDialog(
         context: context,
         builder: (context) {
