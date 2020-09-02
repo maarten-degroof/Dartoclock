@@ -52,6 +52,16 @@ class _RulesState extends State<Rules> {
           'all 20 numbers in order wins the game.',
     ));
 
+    rulesList.add(Item(
+        id: 2,
+        headerValue: 'Elimination game',
+        expandedValue:
+            'In this game mode the goal is to be the last man standing. '
+            'Every player gets three darts to get a score as high as possible. '
+            'The player that has the lowest score is eliminated. If there are multiple players '
+                'with the lowest score, a random player from that group is chosen.\n\n'
+                'Continue each round until only one person is left, this is the winner.'));
+
     return rulesList;
   }
 
@@ -105,6 +115,7 @@ class _RulesState extends State<Rules> {
 
   Widget _buildPanel() {
     return ExpansionPanelList.radio(
+      animationDuration: Duration(seconds: 1),
       children: itemList.map<ExpansionPanelRadio>((Item item) {
         return ExpansionPanelRadio(
             value: item.id,
