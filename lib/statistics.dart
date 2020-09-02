@@ -93,6 +93,21 @@ class Statistics {
     return playersEliminatedCount;
   }
 
+  static void resetStatistics() {
+    classicGamesStarted = 0;
+    classicGamesFinished = 0;
+
+    countdownGamesStarted = 0;
+    countdownGamesFinished = 0;
+
+    eliminationGamesStarted = 0;
+    eliminationGamesFinished = 0;
+
+    playersEliminatedCount = 0;
+
+    _saveStatistics();
+  }
+
   static void initialise() {
     // initialise all the stats here
     // call this function when starting the app (in main.dart)

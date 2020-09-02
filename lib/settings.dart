@@ -1,7 +1,9 @@
 import 'package:dartoclock/customIcons.dart';
+import 'package:dartoclock/statistics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:package_info/package_info.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -95,8 +97,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ],
                             ),
                             actions: <Widget>[
-                              new FlatButton(
-                                child: new Text('SAVE'),
+                              FlatButton(
+                                child: Text('SAVE'),
                                 onPressed: () {
                                   if (_classicTextFieldController.text.length >
                                           0 &&
@@ -140,7 +142,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: 'Version',
                     subtitle: version,
                     leading: Icon(Icons.info),
-                  )
+                  ),
+                  SettingsTile(
+                    title: 'Reset statistics',
+                    subtitle: 'This resets all the statistics back to zero so you can start over.',
+                    leading: Icon(Icons.undo),
+                    onTap: () {
+                      return showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: Text('Reset statistics'),
+                              content: Text(
+                                  'Are you sure you want to reset all your statistics back to zero?'),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: Text('RESET'),
+                                  onPressed: () {
+                                    Statistics.resetStatistics();
+                                    Fluttertoast.showToast(
+                                      msg: 'Statistics are reset',
+                                      toastLength: Toast.LENGTH_SHORT,
+                                    );
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                FlatButton(
+                                  child: Text('CANCEL'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                )
+                              ],
+                            );
+                          });
+                    },
+                  ),
                 ],
               )
             ],
