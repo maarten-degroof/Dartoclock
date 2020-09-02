@@ -10,6 +10,8 @@ class Statistics {
 
   static double eliminationGamesStarted;
   static double eliminationGamesFinished;
+  
+  static double playersEliminatedCount;
 
   static Future<void> _getStatistics() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -22,6 +24,8 @@ class Statistics {
 
     eliminationGamesStarted = prefs.getDouble('eliminationGamesStarted') ?? 0;
     eliminationGamesFinished = prefs.getDouble('eliminationGamesFinished') ?? 0;
+    
+    playersEliminatedCount = prefs.getDouble('playersEliminatedCount') ?? 0;
   }
 
   static Future<void> _saveStatistics() async {
@@ -34,6 +38,8 @@ class Statistics {
 
     prefs.setDouble('eliminationGamesStarted', eliminationGamesStarted);
     prefs.setDouble('eliminationGamesFinished', eliminationGamesFinished);
+
+    prefs.setDouble('playersEliminatedCount', playersEliminatedCount);
   }
 
   static double totalStartedGames() {
@@ -76,6 +82,15 @@ class Statistics {
         break;
     }
     _saveStatistics();
+  }
+
+  static void addOnePlayerEliminated() {
+    playersEliminatedCount++;
+    _saveStatistics();
+  }
+
+  static double getPlayersEliminatedCount() {
+    return playersEliminatedCount;
   }
 
   static void initialise() {

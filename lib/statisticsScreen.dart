@@ -104,10 +104,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                         ],
                       )),
-
                   Card(
                       elevation: 8,
-                      margin: EdgeInsets.only(top: 10),
+                      margin: EdgeInsets.symmetric(vertical: 10),
                       child: Column(children: [
                         Container(
                           child: Text(
@@ -125,6 +124,30 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                         ),
                       ])),
+                  Card(
+                      elevation: 8,
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      child: Column(
+                        children: [
+                          Row(children: [
+                            Spacer(),
+                            Container(
+                                margin: EdgeInsets.only(top: 10, bottom: 5),
+                                child: Text(
+                                  'Players eliminated',
+                                  style: TextStyle(fontSize: 20),
+                                )),
+                            Spacer(),
+                          ]),
+                          Countup(
+                            begin: 0,
+                            end: Statistics.getPlayersEliminatedCount(),
+                            duration: Duration(seconds: 3),
+                            style: TextStyle(fontSize: 30),
+                            curve: Curves.ease,
+                          ),
+                        ],
+                      )),
                 ],
               ),
             ),

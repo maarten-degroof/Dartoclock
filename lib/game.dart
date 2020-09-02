@@ -73,15 +73,11 @@ class _GameScreenState extends State<GameScreen> {
       }
     });
 
-    print(playerScores.toString());
-
     // Null values are for users that still have to throw this round
     // Chooses a random player of the players that have all thrown the lowest number
     if (!playerScores.contains(null)) {
       int minimum = playerScores.reduce(min);
-      print('minimum: ' + minimum.toString());
       List<int> indexList = _getIndexList(playerScores, minimum);
-      print('indexlist: ' + indexList.toString());
 
       int indexToEliminate = random.nextInt(indexList.length);
       userList.elementAt(indexList[indexToEliminate]).eliminate();
@@ -340,6 +336,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   void eliminatePlayer() {
     setState(() {
       playerIsEliminated = true;
+      Statistics.addOnePlayerEliminated();
     });
   }
 
