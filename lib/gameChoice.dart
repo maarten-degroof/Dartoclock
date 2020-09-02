@@ -24,7 +24,7 @@ class _GameChoiceScreenState extends State<GameChoiceScreen> {
               GamePlaying.isPlayingAGame = true;
               Navigator.of(context).pushNamed(
                 '/game',
-                arguments: HomeArguments(mode, users),
+                arguments: GameArguments(mode, users),
               );
             },
             child: Text(mode.toString().split('.').last),

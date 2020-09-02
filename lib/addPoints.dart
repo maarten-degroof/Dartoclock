@@ -1,29 +1,27 @@
+import 'package:dartoclock/gameModesEnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AddPointsScreen extends StatefulWidget {
-  final int startScore;
+  int startScore;
   final String user;
   final int userId;
   final String previousThrowText;
-  AddPointsScreen(
-      {Key key,
-      this.startScore,
-      this.user,
-      this.userId,
-      this.previousThrowText})
-      : super(key: key);
+  final GameModes gameMode;
+
+  AddPointsScreen(this.startScore, this.user, this.userId,
+      this.previousThrowText, this.gameMode) {
+    if (gameMode == GameModes.Elimination) {
+      startScore = 10000;
+    }
+  }
 
   @override
-  _AddPointsScreenState createState() => _AddPointsScreenState(startScore);
+  _AddPointsScreenState createState() => _AddPointsScreenState();
 }
 
 class _AddPointsScreenState extends State<AddPointsScreen>
     with TickerProviderStateMixin {
-  _AddPointsScreenState(startScore) {
-    scoreLeft = startScore;
-  }
-
   AnimationController scaleAnimation;
   final _formKey = GlobalKey<FormState>();
   final _scoreOneController = TextEditingController();
@@ -36,6 +34,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
 
   bool isWindowShowing;
   int scoreLeft;
+  int currentThrow;
 
   @override
   void initState() {
@@ -46,9 +45,14 @@ class _AddPointsScreenState extends State<AddPointsScreen>
         upperBound: 1.0);
     scaleAnimation.forward();
     super.initState();
-    setState(() {
-      isWindowShowing = true;
-    });
+    isWindowShowing = true;
+    scoreLeft = widget.startScore;
+    currentThrow = 0;
+
+    // Put the score at a higher count than can possibly be thrown now so it's always good
+    if (widget.gameMode == GameModes.Elimination) {
+      scoreLeft = 10000;
+    }
   }
 
   @override
@@ -61,66 +65,111 @@ class _AddPointsScreenState extends State<AddPointsScreen>
   }
 
   void _countToScoreLeft() {
-    int currentScoreLeft = widget.startScore;
+    int scoreThrown = 0;
     _formKey.currentState.validate();
 
     /// Field 1
     if (selectedButtonOne[3]) {
-      currentScoreLeft -= 50;
+      scoreThrown += 50;
     } else if (selectedButtonOne[2]) {
-      currentScoreLeft -= 25;
+      scoreThrown += 25;
     } else if (_scoreOneController.text.isNotEmpty) {
       int score = int.parse(_scoreOneController.text);
       if (score <= 20) {
         if (selectedButtonOne[0]) {
-          currentScoreLeft -= (score * 2);
+          scoreThrown += (score * 2);
         } else if (selectedButtonOne[1]) {
-          currentScoreLeft -= (score * 3);
+          scoreThrown += (score * 3);
         } else {
-          currentScoreLeft -= score;
+          scoreThrown += score;
         }
       }
     }
 
     /// Field 2
     if (selectedButtonTwo[3]) {
-      currentScoreLeft -= 50;
+      scoreThrown += 50;
     } else if (selectedButtonTwo[2]) {
-      currentScoreLeft -= 25;
+      scoreThrown += 25;
     } else if (_scoreTwoController.text.isNotEmpty) {
       int score = int.parse(_scoreTwoController.text);
       if (score <= 20) {
         if (selectedButtonTwo[0]) {
-          currentScoreLeft -= (score * 2);
+          scoreThrown += (score * 2);
         } else if (selectedButtonTwo[1]) {
-          currentScoreLeft -= (score * 3);
+          scoreThrown += (score * 3);
         } else {
-          currentScoreLeft -= score;
+          scoreThrown += score;
         }
       }
     }
 
     /// Field 3
     if (selectedButtonThree[3]) {
-      currentScoreLeft -= 50;
+      scoreThrown += 50;
     } else if (selectedButtonThree[2]) {
-      currentScoreLeft -= 25;
+      scoreThrown += 25;
     } else if (_scoreThreeController.text.isNotEmpty) {
       int score = int.parse(_scoreThreeController.text);
       if (score <= 20) {
         if (selectedButtonThree[0]) {
-          currentScoreLeft -= (score * 2);
+          scoreThrown += (score * 2);
         } else if (selectedButtonThree[1]) {
-          currentScoreLeft -= (score * 3);
+          scoreThrown += (score * 3);
         } else {
-          currentScoreLeft -= score;
+          scoreThrown += score;
         }
       }
     }
 
     setState(() {
-      scoreLeft = currentScoreLeft;
+      currentThrow = scoreThrown;
+      scoreLeft = widget.startScore - scoreThrown;
     });
+  }
+
+  Widget _buildHero() {
+    if (widget.gameMode == GameModes.Classic) {
+      return Column(
+        children: [
+          Hero(
+            tag: widget.userId.toString() + '_score',
+            child: Material(
+              color: Colors.transparent,
+              child: Text(
+                'Score to throw: ' + widget.startScore.toString(),
+                style: TextStyle(
+                    fontSize: 18, backgroundColor: Colors.transparent),
+              ),
+            ),
+          ),
+          Hero(
+            tag: widget.userId.toString() + '_previous_throw',
+            child: Material(
+              color: Colors.transparent,
+              child: Text(
+                'Previous throw: ' + widget.previousThrowText,
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    ;
+    return Container();
+  }
+
+  Widget _buildHeader() {
+    if (widget.gameMode == GameModes.Elimination) {
+      return Column(
+        children: [
+          Text(
+              'Throw as high as possible since the person with the lowest score is eliminated.'),
+        ],
+      );
+    }
+    return Container();
   }
 
   /// This function is called when the back button is pressed
@@ -187,28 +236,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                         ),
                       ),
                     ),
-                    Hero(
-                      tag: widget.userId.toString() + '_score',
-                      child: Material(
-                        color: Colors.transparent,
-                        child: Text(
-                          'Score to throw: ' + widget.startScore.toString(),
-                          style: TextStyle(
-                              fontSize: 18,
-                              backgroundColor: Colors.transparent),
-                        ),
-                      ),
-                    ),
-                    Hero(
-                      tag: widget.userId.toString() + '_previous_throw',
-                      child: Material(
-                        color: Colors.transparent,
-                        child: Text(
-                          'Previous throw: ' + widget.previousThrowText,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
+                    _buildHero(),
                     AnimatedOpacity(
                       // AnimatedOpacity takes care of hiding the content when
                       // the back button is pressed.
@@ -221,6 +249,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
+                                  _buildHeader(),
                                   Container(
                                     margin: EdgeInsets.all(10),
                                     child: Column(children: [
@@ -530,20 +559,34 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceAround,
                                             children: [
-                                              Container(
-                                                margin: EdgeInsets.all(16),
-                                                child: Text(
-                                                  'Score left: ' +
-                                                      scoreLeft.toString(),
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                    color: scoreLeft >= 0
-                                                        ? Colors.green
-                                                        : Colors.red,
-                                                  ),
-                                                ),
+                                              widget.gameMode ==
+                                                      GameModes.Classic
+                                                  ? Container(
+                                                      margin:
+                                                          EdgeInsets.all(16),
+                                                      child: Text(
+                                                        'Score left: ' +
+                                                            scoreLeft
+                                                                .toString(),
+                                                        style: TextStyle(
+                                                          fontSize: 18,
+                                                          color: scoreLeft >= 0
+                                                              ? Colors.green
+                                                              : Colors.red,
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : Text(''),
+                                              Text(
+                                                  'You threw: ' +
+                                                      currentThrow.toString(),
+                                                  style:
+                                                      TextStyle(fontSize: 18)),
+                                              SizedBox(
+                                                height: 10,
                                               ),
-                                              Text('(The heart icon is currently the bull (25 points) and the bell icon is bullseye (50 points). These icons will be changed in the future.)'),
+                                              Text(
+                                                  '(The heart icon is currently the bull (25 points) and the bell icon is bullseye (50 points). These icons will be changed in the future.)'),
                                               Container(
                                                   margin: EdgeInsets.all(16),
                                                   child: Row(
@@ -581,7 +624,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                                                               Navigator.of(
                                                                       context)
                                                                   .pop(
-                                                                      scoreLeft);
+                                                                      currentThrow);
                                                             } else {
                                                               _showTooFewPointsDialog();
                                                             }

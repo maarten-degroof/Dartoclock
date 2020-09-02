@@ -1,4 +1,5 @@
 enum GameModes {
   Classic,
-  Countdown
+  Countdown,
+  Elimination
 }

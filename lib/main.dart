@@ -22,7 +22,7 @@ class DartApp extends StatelessWidget {
       initialRoute: '/gameChoice',
       routes: {
         '/gameChoice': (context) => GameChoiceScreen(),
-        '/game': (context) => HomeScreen(),
+        '/game': (context) => GameScreen(),
         '/rules': (context) => Rules(),
         '/settings': (context) => SettingsScreen(),
         '/statistics': (context) => StatisticsScreen(),

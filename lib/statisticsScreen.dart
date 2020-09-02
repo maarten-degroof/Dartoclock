@@ -27,6 +27,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     totalGamesMap.putIfAbsent('Classic', () => Statistics.classicGamesStarted);
     totalGamesMap.putIfAbsent(
         'Countdown', () => Statistics.countdownGamesStarted);
+    totalGamesMap.putIfAbsent(
+        'Elimination', () => Statistics.eliminationGamesStarted);
   }
 
   @override

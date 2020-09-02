@@ -8,6 +8,9 @@ class Statistics {
   static double countdownGamesStarted;
   static double countdownGamesFinished;
 
+  static double eliminationGamesStarted;
+  static double eliminationGamesFinished;
+
   static Future<void> _getStatistics() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -16,6 +19,9 @@ class Statistics {
 
     countdownGamesStarted = prefs.getDouble('countdownGamesStarted') ?? 0;
     countdownGamesFinished = prefs.getDouble('countdownGamesFinished') ?? 0;
+
+    eliminationGamesStarted = prefs.getDouble('eliminationGamesStarted') ?? 0;
+    eliminationGamesFinished = prefs.getDouble('eliminationGamesFinished') ?? 0;
   }
 
   static Future<void> _saveStatistics() async {
@@ -25,14 +31,21 @@ class Statistics {
 
     prefs.setDouble('countdownGamesStarted', countdownGamesStarted);
     prefs.setDouble('countdownGamesFinished', countdownGamesFinished);
+
+    prefs.setDouble('eliminationGamesStarted', eliminationGamesStarted);
+    prefs.setDouble('eliminationGamesFinished', eliminationGamesFinished);
   }
 
   static double totalStartedGames() {
-    return classicGamesStarted + countdownGamesStarted;
+    return classicGamesStarted +
+        countdownGamesStarted +
+        eliminationGamesStarted;
   }
 
   static double totalFinishedGames() {
-    return classicGamesFinished + countdownGamesFinished;
+    return classicGamesFinished +
+        countdownGamesFinished +
+        eliminationGamesFinished;
   }
 
   static void startedGame(GameModes gameMode) {
@@ -42,6 +55,10 @@ class Statistics {
         break;
       case GameModes.Countdown:
         countdownGamesStarted++;
+        break;
+      case GameModes.Elimination:
+        eliminationGamesStarted++;
+        break;
     }
     _saveStatistics();
   }
@@ -53,6 +70,10 @@ class Statistics {
         break;
       case GameModes.Countdown:
         countdownGamesFinished++;
+        break;
+      case GameModes.Elimination:
+        eliminationGamesFinished++;
+        break;
     }
     _saveStatistics();
   }
