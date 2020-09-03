@@ -10,8 +10,9 @@ class Statistics {
 
   static double eliminationGamesStarted;
   static double eliminationGamesFinished;
-  
+
   static double playersEliminatedCount;
+  static double totalScoreThrown;
 
   static Future<void> _getStatistics() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -24,8 +25,9 @@ class Statistics {
 
     eliminationGamesStarted = prefs.getDouble('eliminationGamesStarted') ?? 0;
     eliminationGamesFinished = prefs.getDouble('eliminationGamesFinished') ?? 0;
-    
+
     playersEliminatedCount = prefs.getDouble('playersEliminatedCount') ?? 0;
+    totalScoreThrown = prefs.getDouble('totalScoreThrown') ?? 0;
   }
 
   static Future<void> _saveStatistics() async {
@@ -40,6 +42,7 @@ class Statistics {
     prefs.setDouble('eliminationGamesFinished', eliminationGamesFinished);
 
     prefs.setDouble('playersEliminatedCount', playersEliminatedCount);
+    prefs.setDouble('totalScoreThrown', totalScoreThrown);
   }
 
   static double totalStartedGames() {
@@ -93,6 +96,20 @@ class Statistics {
     return playersEliminatedCount;
   }
 
+  static void addScoreThrown(double score) {
+    totalScoreThrown += score;
+    _saveStatistics();
+  }
+
+  static void removeScoreThrown(double score) {
+    totalScoreThrown -= score;
+    _saveStatistics();
+  }
+
+  static double getTotalScoreThrown() {
+    return totalScoreThrown;
+  }
+
   static void resetStatistics() {
     classicGamesStarted = 0;
     classicGamesFinished = 0;
@@ -104,13 +121,13 @@ class Statistics {
     eliminationGamesFinished = 0;
 
     playersEliminatedCount = 0;
+    totalScoreThrown = 0;
 
     _saveStatistics();
   }
 
+  /// This loads the _getStatistics function which loads or defaults all the statistics
   static void initialise() {
-    // initialise all the stats here
-    // call this function when starting the app (in main.dart)
     _getStatistics();
   }
 }

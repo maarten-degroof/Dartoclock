@@ -294,7 +294,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   bool playerIsEliminated;
   bool playerWins = false;
 
-  var previousScoreList = [];
+  List<int> previousScoreList = List();
 
   @override
   void initState() {
@@ -526,6 +526,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             setState(() {
               hasUndoneMove = false;
               if (currentCountdownThrow > 0) {
+                Statistics.addScoreThrown(currentCountdownThrow.toDouble());
                 currentCountdownThrow--;
               }
               if (currentCountdownThrow == 0 && !someoneFinished) {
@@ -598,6 +599,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   hasUndoneMove = false;
                   score = score - result;
                   previousScoreList.add(score);
+                  Statistics.addScoreThrown(result.toDouble());
                   if (score == 0 && !someoneFinished) {
                     playerWon();
                   }
@@ -750,12 +752,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   setState(() {
                     hasUndoneMove = true;
                     if (gameMode == GameModes.Classic) {
+                      Statistics.removeScoreThrown(previousScoreList.last.toDouble());
                       previousScoreList.removeLast();
                       previousScoreList.isEmpty
                           ? score = gameStartScore
                           : score = previousScoreList.last;
                     } else if (gameMode == GameModes.Countdown) {
                       currentCountdownThrow++;
+                      Statistics.removeScoreThrown(currentCountdownThrow.toDouble());
                     }
                   });
 

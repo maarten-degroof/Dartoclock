@@ -66,14 +66,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       child: Column(
                         children: [
                           Row(children: [
-                            Spacer(),
-                            Container(
-                                margin: EdgeInsets.only(top: 10, bottom: 5),
-                                child: Text(
-                                  'Games started',
-                                  style: TextStyle(fontSize: 20),
-                                )),
-                            Spacer(),
+                            Expanded(
+                              child: Container(
+                                  margin: EdgeInsets.only(top: 10, bottom: 5),
+                                  child: Text(
+                                    'Games started',
+                                    style: TextStyle(fontSize: 20),
+                                    textAlign: TextAlign.center,
+                                  )),
+                            ),
                           ]),
                           Countup(
                             begin: 0,
@@ -83,14 +84,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             curve: Curves.ease,
                           ),
                           Row(children: [
-                            Spacer(),
-                            Container(
-                                margin: EdgeInsets.only(top: 10, bottom: 5),
-                                child: Text(
-                                  'Games finished',
-                                  style: TextStyle(fontSize: 20),
-                                )),
-                            Spacer(),
+                            Expanded(
+                              child: Container(
+                                  margin: EdgeInsets.only(top: 10, bottom: 5),
+                                  child: Text(
+                                    'Games finished',
+                                    style: TextStyle(fontSize: 20),
+                                    textAlign: TextAlign.center,
+                                  )),
+                            ),
                           ]),
                           Container(
                             margin: EdgeInsets.only(bottom: 5),
@@ -129,19 +131,51 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       margin: EdgeInsets.symmetric(vertical: 10),
                       child: Column(
                         children: [
-                          Row(children: [
-                            Spacer(),
-                            Container(
-                                margin: EdgeInsets.only(top: 10, bottom: 5),
-                                child: Text(
-                                  'Players eliminated',
-                                  style: TextStyle(fontSize: 20),
-                                )),
-                            Spacer(),
-                          ]),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                    margin: EdgeInsets.only(top: 10, bottom: 5),
+                                    child: Text(
+                                      'Players eliminated',
+                                      style: TextStyle(fontSize: 20),
+                                      textAlign: TextAlign.center,
+                                    )),
+                              ),
+                            ],
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                          ),
                           Countup(
                             begin: 0,
                             end: Statistics.getPlayersEliminatedCount(),
+                            duration: Duration(seconds: 3),
+                            style: TextStyle(fontSize: 30),
+                            curve: Curves.ease,
+                          ),
+                        ],
+                      )),
+                  Card(
+                      elevation: 8,
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                    margin: EdgeInsets.only(top: 10, bottom: 5),
+                                    child: Text(
+                                      'Total score thrown by you and your friends',
+                                      style: TextStyle(fontSize: 20),
+                                      textAlign: TextAlign.center,
+                                    )),
+                              ),
+                            ],
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                          ),
+                          Countup(
+                            begin: 0,
+                            end: Statistics.getTotalScoreThrown(),
                             duration: Duration(seconds: 3),
                             style: TextStyle(fontSize: 30),
                             curve: Curves.ease,
