@@ -283,6 +283,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   final int id;
   String name;
   final _textFieldController = TextEditingController();
+  bool hasUndoneMove;
 
   int score;
   int gameStartScore;
@@ -299,6 +300,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   void initState() {
     super.initState();
     name = 'Player $id';
+    hasUndoneMove = false;
 
     _getSharedPrefs();
     currentCountdownThrow = countDownStart;
@@ -516,12 +518,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
           maintainState: true,
           child: IconButton(
             icon: Icon(Icons.undo),
-            onPressed: _showUndoDialog,
+            onPressed: hasUndoneMove ? null : _showUndoDialog,
           ),
         ),
         OutlineButton(
           onPressed: () {
             setState(() {
+              hasUndoneMove = false;
               if (currentCountdownThrow > 0) {
                 currentCountdownThrow--;
               }
@@ -579,7 +582,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
           maintainState: true,
           child: IconButton(
             icon: Icon(Icons.undo),
-            onPressed: _showUndoDialog,
+            onPressed: hasUndoneMove ? null : _showUndoDialog,
           ),
         ),
         OutlineButton(
@@ -592,6 +595,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               ));
               if (result != null) {
                 setState(() {
+                  hasUndoneMove = false;
                   score = score - result;
                   previousScoreList.add(score);
                   if (score == 0 && !someoneFinished) {
@@ -744,6 +748,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 child: new Text('UNDO'),
                 onPressed: () {
                   setState(() {
+                    hasUndoneMove = true;
                     if (gameMode == GameModes.Classic) {
                       previousScoreList.removeLast();
                       previousScoreList.isEmpty
