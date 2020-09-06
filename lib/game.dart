@@ -14,10 +14,6 @@ int userCount;
 bool someoneFinished;
 
 class GameScreen extends StatefulWidget {
-  GameScreen() {
-    someoneFinished = false;
-  }
-
   @override
   _GameScreenState createState() => _GameScreenState();
 }
@@ -40,6 +36,7 @@ class _GameScreenState extends State<GameScreen> {
     hasSentStatistics = false;
     userList = List();
     random = Random();
+    someoneFinished = false;
   }
 
   static Future<dynamic> _showPlayerEliminatedDialog(
@@ -275,7 +272,8 @@ class PlayerScreen extends StatefulWidget {
   }
 
   @override
-  _PlayerScreenState createState() => playerScreenState = _PlayerScreenState(id: id);
+  _PlayerScreenState createState() =>
+      playerScreenState = _PlayerScreenState(id: id);
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
@@ -290,6 +288,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   int currentCountdownThrow;
   final countDownStart = 20;
+  bool shouldThrowBullsEyeCountdown;
+  bool hasThrownBullsEyeCountdown;
 
   bool playerIsEliminated;
   bool playerWins = false;
@@ -301,6 +301,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
     super.initState();
     name = 'Player $id';
     hasUndoneMove = false;
+
+    shouldThrowBullsEyeCountdown = false;
+    hasThrownBullsEyeCountdown = false;
 
     _getSharedPrefs();
     currentCountdownThrow = countDownStart;
@@ -321,6 +324,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
     setState(() {
       gameStartScore = prefs.getInt('classicPoints') ?? 360;
       score = gameStartScore;
+
+      shouldThrowBullsEyeCountdown =
+          prefs.getBool('shouldThrowBullseyeCountdown') ?? false;
+
       if (gameMode == GameModes.Elimination) {
         score = null;
       }
@@ -348,6 +355,12 @@ class _PlayerScreenState extends State<PlayerScreen> {
       playerWins = true;
     });
     _showWinningDialog();
+  }
+
+  void playerLost() {
+    setState(() {
+      playerIsEliminated = true;
+    });
   }
 
   bool isPlayerEliminated() {
@@ -434,7 +447,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     }
   }
 
-  String _buildCountdownThrowsTextField() {
+  Widget _buildCountdownThrowsTextField() {
     String textBuilder = '';
     for (int i = countDownStart; i > 0; i--) {
       // If i is bigger, the throw has already been completed
@@ -444,7 +457,30 @@ class _PlayerScreenState extends State<PlayerScreen> {
         textBuilder += '❌' + i.toString() + '    ';
       }
     }
-    return textBuilder;
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(height: 2, color: Colors.black),
+        children: [
+          TextSpan(text: textBuilder),
+          _addBullseyeToCountdownTextField(),
+        ],
+      ),
+    );
+  }
+
+  TextSpan _addBullseyeToCountdownTextField() {
+    if (shouldThrowBullsEyeCountdown) {
+      return TextSpan(children: [
+        hasThrownBullsEyeCountdown ? TextSpan(text: '✔') : TextSpan(text: '❌'),
+        WidgetSpan(
+          child: Padding(
+            padding: const EdgeInsets.all(0),
+            child: Icon(Icons.notifications),
+          ),
+        ),
+      ]);
+    }
+    return TextSpan(text: ' ');
   }
 
   Text _buildEliminationStatusTextField() {
@@ -498,6 +534,17 @@ class _PlayerScreenState extends State<PlayerScreen> {
     ]);
   }
 
+  String _buildScoreToThrowCountDownGame() {
+    if (currentCountdownThrow > 0) {
+      return 'Score to throw: ' + currentCountdownThrow.toString();
+    } else if (shouldThrowBullsEyeCountdown && !hasThrownBullsEyeCountdown) {
+      return 'You should throw the bullseye now';
+    } else if (playerWins) {
+      return 'You won!';
+    }
+    return 'You finished it, but you\'re not first.';
+  }
+
   Widget _buildCountdownGame() {
     return Column(children: [
       Hero(
@@ -505,8 +552,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
         child: Material(
           color: Colors.transparent,
           child: Text(
-            'Score to throw: ' + currentCountdownThrow.toString(),
-            style: TextStyle(fontSize: 18, backgroundColor: Colors.transparent),
+            _buildScoreToThrowCountDownGame(),
+            style: TextStyle(fontSize: 18),
           ),
         ),
       ),
@@ -518,22 +565,37 @@ class _PlayerScreenState extends State<PlayerScreen> {
           maintainState: true,
           child: IconButton(
             icon: Icon(Icons.undo),
-            onPressed: hasUndoneMove ? null : _showUndoDialog,
+            onPressed: (hasUndoneMove || playerWins || playerIsEliminated)
+                ? null
+                : _showUndoDialog,
           ),
         ),
         OutlineButton(
-          onPressed: () {
-            setState(() {
-              hasUndoneMove = false;
-              if (currentCountdownThrow > 0) {
-                Statistics.addScoreThrown(currentCountdownThrow.toDouble());
-                currentCountdownThrow--;
-              }
-              if (currentCountdownThrow == 0 && !someoneFinished) {
-                playerWon();
-              }
-            });
-          },
+          onPressed: (playerWins || playerIsEliminated)
+              ? null
+              : () {
+                  setState(() {
+                    hasUndoneMove = false;
+                    if (currentCountdownThrow > 0) {
+                      Statistics.addScoreThrown(
+                          currentCountdownThrow.toDouble());
+                      currentCountdownThrow--;
+                    } else if (shouldThrowBullsEyeCountdown) {
+                      hasThrownBullsEyeCountdown = true;
+                    }
+                    if (currentCountdownThrow == 0 &&
+                        (!shouldThrowBullsEyeCountdown ||
+                            (shouldThrowBullsEyeCountdown &&
+                                hasThrownBullsEyeCountdown))) {
+                      if (!someoneFinished) {
+                        someoneFinished = true;
+                        playerWon();
+                      } else {
+                        playerLost();
+                      }
+                    }
+                  });
+                },
           child: Text(
             'I threw it',
             style: TextStyle(fontSize: 18),
@@ -555,11 +617,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
         ),
       ]),
       Container(
-          margin: EdgeInsets.all(12),
-          child: Text(
-            _buildCountdownThrowsTextField(),
-            style: TextStyle(height: 1.5),
-          )),
+        margin: EdgeInsets.all(12),
+        child: _buildCountdownThrowsTextField(),
+      ),
     ]);
   }
 
@@ -752,14 +812,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   setState(() {
                     hasUndoneMove = true;
                     if (gameMode == GameModes.Classic) {
-                      Statistics.removeScoreThrown(previousScoreList.last.toDouble());
+                      Statistics.removeScoreThrown(
+                          previousScoreList.last.toDouble());
                       previousScoreList.removeLast();
                       previousScoreList.isEmpty
                           ? score = gameStartScore
                           : score = previousScoreList.last;
                     } else if (gameMode == GameModes.Countdown) {
                       currentCountdownThrow++;
-                      Statistics.removeScoreThrown(currentCountdownThrow.toDouble());
+                      Statistics.removeScoreThrown(
+                          currentCountdownThrow.toDouble());
                     }
                   });
 

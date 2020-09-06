@@ -19,6 +19,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final _classicTextFieldController = TextEditingController();
   int classicPoints;
+  bool shouldThrowBullseyeCountdown;
   String version;
 
   Future<void> getSharedPrefs() async {
@@ -26,12 +27,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       classicPoints = prefs.getInt('classicPoints') ?? 360;
       _classicTextFieldController.text = classicPoints.toString();
+
+      shouldThrowBullseyeCountdown =
+          prefs.getBool('shouldThrowBullseyeCountdown') ?? false;
     });
   }
 
   Future<void> setSharedPrefs() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt('classicPoints', classicPoints);
+    prefs.setBool('shouldThrowBullseyeCountdown', shouldThrowBullseyeCountdown);
   }
 
   Future<void> setVersionNumber() async {
@@ -45,6 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     classicPoints = 0;
+    shouldThrowBullseyeCountdown = false;
     getSharedPrefs();
     setVersionNumber();
   }
@@ -71,7 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         backgroundColor: Colors.transparent,
         body: Container(
-          margin: EdgeInsets.only(top: 10, bottom: 10),
+          margin: EdgeInsets.only(top: 10),
           child: SettingsList(
             //backgroundColor: Colors.transparent,
             sections: [
@@ -127,6 +133,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 )
               ]),
               SettingsSection(
+                title: 'Countdown game',
+                tiles: [
+                  SettingsTile.switchTile(
+                      title: 'End with a bang',
+                      subtitle:
+                          'Extra difficulty: after throwing the 1 you win by throwing bullseye.',
+                      leading: Icon(Icons.notifications),
+                      onToggle: (value) {
+                        setState(() {
+                          shouldThrowBullseyeCountdown = value;
+                        });
+                        setSharedPrefs();
+                      },
+                      switchValue: shouldThrowBullseyeCountdown)
+                ],
+              ),
+              SettingsSection(
                 title: 'General settings',
                 tiles: [
                   SettingsTile(
@@ -145,7 +168,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   SettingsTile(
                     title: 'Reset statistics',
-                    subtitle: 'This resets all the statistics back to zero so you can start over.',
+                    subtitle:
+                        'This resets all the statistics back to zero so you can start over.',
                     leading: Icon(Icons.undo),
                     onTap: () {
                       return showDialog(

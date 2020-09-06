@@ -42,15 +42,16 @@ class _RulesState extends State<Rules> {
             'with a score of exactly 0.'));
 
     rulesList.add(Item(
-      id: 1,
-      headerValue: 'Countdown game',
-      expandedValue:
-          'In this game mode the goal is to throw all 20 numbers once. '
-          'You start the first round at 20. Once you throw the number 20, '
-          'you need to throw 19, going down until they reach 1. '
-          '\n\nThe first person to throw 1 and thus the first person to throw '
-          'all 20 numbers in order wins the game.',
-    ));
+        id: 1,
+        headerValue: 'Countdown game',
+        expandedValue:
+            'In this game mode the goal is to throw all 20 numbers once. '
+            'You start the first round at 20. Once you throw the number 20, '
+            'you need to throw 19, going down until they reach 1. '
+            '\n\nThe first person to throw 1 and thus the first person to throw '
+            'all 20 numbers in order wins the game.\n\nAs an added difficulty you '
+            'can choose to end with a bang, where you have to throw the bullseye after you\'ve thrown the 1,'
+            ' this makes the finale more difficult.'));
 
     rulesList.add(Item(
         id: 2,
@@ -59,8 +60,8 @@ class _RulesState extends State<Rules> {
             'In this game mode the goal is to be the last man standing. '
             'Every player gets three darts to get a score as high as possible. '
             'The player that has the lowest score is eliminated. If there are multiple players '
-                'with the lowest score, a random player from that group is chosen.\n\n'
-                'Continue each round until only one person is left, this is the winner.'));
+            'with the lowest score, a random player from that group is chosen.\n\n'
+            'Continue each round until only one person is left, this is the winner.'));
 
     return rulesList;
   }
