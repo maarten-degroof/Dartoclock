@@ -12,6 +12,7 @@ import 'addPoints.dart';
 GameModes gameMode;
 int userCount;
 bool someoneFinished;
+int round;
 
 class GameScreen extends StatefulWidget {
   @override
@@ -37,6 +38,28 @@ class _GameScreenState extends State<GameScreen> {
     userList = List();
     random = Random();
     someoneFinished = false;
+    round = 1;
+  }
+
+  static void checkRoundForUpdate(BuildContext context) {
+    bool shouldUpdateRound = true;
+
+    // Check if every player has played this round
+    userList.forEach((element) {
+      shouldUpdateRound = shouldUpdateRound &&
+          (element.hasPlayedRound() || element.isPlayerEliminated());
+    });
+
+    if (shouldUpdateRound) {
+      _GameScreenState stateObject =
+          context.findAncestorStateOfType<_GameScreenState>();
+      stateObject.setState(() {
+        round++;
+      });
+      userList.forEach((element) {
+        element.setHasPlayedRound(false);
+      });
+    }
   }
 
   static Future<dynamic> _showPlayerEliminatedDialog(
@@ -58,6 +81,15 @@ class _GameScreenState extends State<GameScreen> {
         });
   }
 
+  /// Eliminates all the players that haven't won the game
+  static void eliminateAllLostPlayers() {
+    userList.forEach((player) {
+      if (!player.hasPlayerWon()) {
+        player.eliminate();
+      }
+    });
+  }
+
   static Future<void> checkPlayersForElimination(BuildContext context) async {
     List<int> playerScores = List();
 
@@ -65,6 +97,8 @@ class _GameScreenState extends State<GameScreen> {
       // add a number so high you can't ever throw it so this player isn't a problem
       if (element.isPlayerEliminated()) {
         playerScores.add(10000);
+      } else if (!element.hasPlayedRound()) {
+        playerScores.add(null);
       } else {
         playerScores.add(element.getScore());
       }
@@ -82,10 +116,6 @@ class _GameScreenState extends State<GameScreen> {
               userList.elementAt(indexList[indexToEliminate]).getPlayerName(),
               context)
           .then((value) {
-        userList.forEach((element) {
-          element.resetScore();
-        });
-
         // check if there's only one person left -> wins the game
         int playersStillAliveCount = 0;
         int winnerIndex = 0;
@@ -99,6 +129,12 @@ class _GameScreenState extends State<GameScreen> {
 
         if (playersStillAliveCount == 1) {
           userList.elementAt(winnerIndex).playerWins();
+        } else {
+          checkRoundForUpdate(context);
+          userList.forEach((element) {
+            element.setHasPlayedRound(false);
+            element.resetScore();
+          });
         }
       });
     }
@@ -172,6 +208,7 @@ class _GameScreenState extends State<GameScreen> {
                           softWrap: true,
                           style: TextStyle(fontSize: 20, color: Colors.white),
                         ),
+                        _buildRoundText(),
                         Container(
                           margin: EdgeInsets.only(top: 5),
                           child: Text(
@@ -192,10 +229,21 @@ class _GameScreenState extends State<GameScreen> {
           bottomNavigationBar: BottomNavigation(
             index: 0,
           ),
-          //bottomNavigationBar: _buildNavigation(context),
         ),
       ),
     );
+  }
+
+  Widget _buildRoundText() {
+    if (gameMode == GameModes.Classic || gameMode == GameModes.Elimination) {
+      return Text(
+        'Round: ' + round.toString(),
+        textAlign: TextAlign.center,
+        softWrap: true,
+        style: TextStyle(fontSize: 20, color: Colors.white),
+      );
+    }
+    return Container();
   }
 
   String _loadGameModeDescription() {
@@ -255,6 +303,18 @@ class PlayerScreen extends StatefulWidget {
     playerScreenState.playerWon();
   }
 
+  bool hasPlayerWon() {
+    return playerScreenState.hasPlayerWon();
+  }
+
+  bool hasPlayedRound() {
+    return playerScreenState.hasPlayedRound();
+  }
+
+  void setHasPlayedRound(bool round) {
+    playerScreenState.setHasPlayedRound(round);
+  }
+
   int getScore() {
     return playerScreenState.getScore();
   }
@@ -282,6 +342,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
   String name;
   final _textFieldController = TextEditingController();
   bool hasUndoneMove;
+  bool roundPlayed;
 
   int score;
   int gameStartScore;
@@ -301,6 +362,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     super.initState();
     name = 'Player $id';
     hasUndoneMove = false;
+    roundPlayed = false;
 
     shouldThrowBullsEyeCountdown = false;
     hasThrownBullsEyeCountdown = false;
@@ -314,6 +376,20 @@ class _PlayerScreenState extends State<PlayerScreen> {
     if (gameMode == GameModes.Elimination) {
       score = null;
     }
+  }
+
+  bool hasPlayerWon() {
+    return playerWins;
+  }
+
+  bool hasPlayedRound() {
+    return roundPlayed;
+  }
+
+  void setHasPlayedRound(bool hasPlayedThisRound) {
+    setState(() {
+      roundPlayed = hasPlayedThisRound;
+    });
   }
 
   /// Loads the startScore from the shared preferences,
@@ -355,6 +431,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
       playerWins = true;
     });
     _showWinningDialog();
+    _GameScreenState.eliminateAllLostPlayers();
   }
 
   void playerLost() {
@@ -506,7 +583,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
       _buildEliminationStatusTextField(),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         OutlineButton(
-            onPressed: (isPlayerEliminated() || playerWins || score != null)
+            onPressed: (isPlayerEliminated() || playerWins || roundPlayed)
                 ? null
                 : () async {
                     final result =
@@ -517,6 +594,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     ));
                     if (result != null) {
                       setState(() {
+                        roundPlayed = true;
                         score = result;
                         _GameScreenState.checkPlayersForElimination(context);
                       });
@@ -588,7 +666,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
                             (shouldThrowBullsEyeCountdown &&
                                 hasThrownBullsEyeCountdown))) {
                       if (!someoneFinished) {
-                        someoneFinished = true;
                         playerWon();
                       } else {
                         playerLost();
@@ -643,29 +720,37 @@ class _PlayerScreenState extends State<PlayerScreen> {
           maintainState: true,
           child: IconButton(
             icon: Icon(Icons.undo),
-            onPressed: hasUndoneMove ? null : _showUndoDialog,
+            onPressed: (hasUndoneMove || playerWins || playerIsEliminated)
+                ? null
+                : _showUndoDialog,
           ),
         ),
         OutlineButton(
-            onPressed: () async {
-              final result = await Navigator.of(context).push(PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    AddPointsScreen(
-                        score, name, id, _generatePreviousThrow(), gameMode),
-                transitionDuration: Duration(milliseconds: 1000),
-              ));
-              if (result != null) {
-                setState(() {
-                  hasUndoneMove = false;
-                  score = score - result;
-                  previousScoreList.add(score);
-                  Statistics.addScoreThrown(result.toDouble());
-                  if (score == 0 && !someoneFinished) {
-                    playerWon();
-                  }
-                });
-              }
-            },
+            onPressed: (playerIsEliminated || playerWins || roundPlayed)
+                ? null
+                : () async {
+                    final result =
+                        await Navigator.of(context).push(PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          AddPointsScreen(score, name, id,
+                              _generatePreviousThrow(), gameMode),
+                      transitionDuration: Duration(milliseconds: 1000),
+                    ));
+                    if (result != null) {
+                      setState(() {
+                        hasUndoneMove = false;
+                        roundPlayed = true;
+                        score = score - result;
+                        previousScoreList.add(score);
+                        Statistics.addScoreThrown(result.toDouble());
+                        _GameScreenState.checkRoundForUpdate(context);
+
+                        if (score == 0 && !someoneFinished) {
+                          playerWon();
+                        }
+                      });
+                    }
+                  },
             child: Text('Add a throw')),
         Visibility(
           visible: previousScoreList.isNotEmpty,
