@@ -55,6 +55,7 @@ class _GameScreenState extends State<GameScreen> {
           context.findAncestorStateOfType<_GameScreenState>();
       stateObject.setState(() {
         round++;
+        Statistics.addRowPlayed();
       });
       userList.forEach((element) {
         element.setHasPlayedRound(false);
@@ -161,6 +162,7 @@ class _GameScreenState extends State<GameScreen> {
 
     if (!hasSentStatistics) {
       Statistics.startedGame(gameMode);
+      Statistics.addRowPlayed();
       hasSentStatistics = true;
     }
 
@@ -743,10 +745,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         score = score - result;
                         previousScoreList.add(score);
                         Statistics.addScoreThrown(result.toDouble());
-                        _GameScreenState.checkRoundForUpdate(context);
 
                         if (score == 0 && !someoneFinished) {
                           playerWon();
+                        } else {
+                          _GameScreenState.checkRoundForUpdate(context);
                         }
                       });
                     }
@@ -848,9 +851,9 @@ class _PlayerScreenState extends State<PlayerScreen> {
         builder: (context) {
           return AlertDialog(
             title: Text('Game won!'),
-            content: Text('Good news, ' +
-                name +
-                ' won the game! Do you want to finish the game?'),
+            content: Text('Good news, $name won the game' +
+                (gameMode == GameModes.Countdown ? '' : ' in $round rounds') +
+                '! Do you want to finish the game?'),
             actions: <Widget>[
               new FlatButton(
                   child: new Text('FINISH'),

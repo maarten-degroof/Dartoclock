@@ -180,6 +180,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             style: TextStyle(fontSize: 30),
                             curve: Curves.ease,
                           ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                    margin: EdgeInsets.only(top: 10, bottom: 5),
+                                    child: Text(
+                                      'Total rounds played',
+                                      style: TextStyle(fontSize: 20),
+                                      textAlign: TextAlign.center,
+                                    )),
+                              ),
+                            ],
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                          ),
+                          Countup(
+                            begin: 0,
+                            end: Statistics.getTotalRoundsPlayed(),
+                            duration: Duration(seconds: 3),
+                            style: TextStyle(fontSize: 30),
+                            curve: Curves.ease,
+                          ),
                         ],
                       )),
                 ],

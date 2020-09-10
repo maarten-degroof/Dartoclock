@@ -13,8 +13,9 @@ class Statistics {
 
   static double playersEliminatedCount;
   static double totalScoreThrown;
+  static double totalRoundsPlayed;
 
-  static Future<void> _getStatistics() async {
+  static Future<void> _loadStatistics() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
     classicGamesStarted = prefs.getDouble('classicGamesStarted') ?? 0;
@@ -28,6 +29,7 @@ class Statistics {
 
     playersEliminatedCount = prefs.getDouble('playersEliminatedCount') ?? 0;
     totalScoreThrown = prefs.getDouble('totalScoreThrown') ?? 0;
+    totalRoundsPlayed = prefs.getDouble('totalRoundsPlayed') ?? 0;
   }
 
   static Future<void> _saveStatistics() async {
@@ -43,6 +45,7 @@ class Statistics {
 
     prefs.setDouble('playersEliminatedCount', playersEliminatedCount);
     prefs.setDouble('totalScoreThrown', totalScoreThrown);
+    prefs.setDouble('totalRoundsPlayed', totalRoundsPlayed);
   }
 
   static double totalStartedGames() {
@@ -96,6 +99,15 @@ class Statistics {
     return playersEliminatedCount;
   }
 
+  static void addRowPlayed() {
+    totalRoundsPlayed++;
+    _saveStatistics();
+  }
+
+  static double getTotalRoundsPlayed() {
+    return totalRoundsPlayed;
+  }
+
   static void addScoreThrown(double score) {
     totalScoreThrown += score;
     _saveStatistics();
@@ -122,12 +134,13 @@ class Statistics {
 
     playersEliminatedCount = 0;
     totalScoreThrown = 0;
+    totalRoundsPlayed = 0;
 
     _saveStatistics();
   }
 
   /// This loads the _getStatistics function which loads or defaults all the statistics
   static void initialise() {
-    _getStatistics();
+    _loadStatistics();
   }
 }
