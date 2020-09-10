@@ -113,17 +113,21 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         Container(
                           child: Text(
                             'All your played games',
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(fontSize: 20),
                           ),
                           padding: EdgeInsets.all(10),
                         ),
                         PieChart(
                           dataMap: totalGamesMap,
-                          showChartValuesInPercentage: false,
-                          animationDuration: Duration(seconds: 3),
-                          chartValueStyle: defaultChartValueStyle.copyWith(
-                            color: Colors.white60.withOpacity(0.9),
+                          chartValuesOptions: ChartValuesOptions(
+                            decimalPlaces: 0,
+                            showChartValuesInPercentage: false,
+                            chartValueBackgroundColor: Colors.transparent,
+                            chartValueStyle: defaultChartValueStyle.copyWith(
+                              color: Colors.white60.withOpacity(0.9),
+                            ),
                           ),
+                          animationDuration: Duration(seconds: 3),
                         ),
                       ])),
                   Card(
