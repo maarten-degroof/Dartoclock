@@ -65,7 +65,6 @@ class _GameScreenState extends State<GameScreen> {
 
   static Future<dynamic> _showPlayerEliminatedDialog(
       String playerName, BuildContext context) {
-    Statistics.finishedGame(gameMode);
     return showDialog(
         context: context,
         builder: (context) {
@@ -85,7 +84,7 @@ class _GameScreenState extends State<GameScreen> {
   /// Eliminates all the players that haven't won the game
   static void eliminateAllLostPlayers() {
     userList.forEach((player) {
-      if (!player.hasPlayerWon()) {
+      if (!player.hasPlayerWon() && !player.isPlayerEliminated()) {
         player.eliminate();
       }
     });
@@ -105,7 +104,7 @@ class _GameScreenState extends State<GameScreen> {
       }
     });
 
-    // Null values are for users that still have to throw this round
+    // Null values are for players that still have to throw this round
     // Chooses a random player of the players that have all thrown the lowest number
     if (!playerScores.contains(null)) {
       int minimum = playerScores.reduce(min);
@@ -601,6 +600,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       setState(() {
                         roundPlayed = true;
                         score = result;
+                        Statistics.addScoreThrown(result.toDouble());
                         _GameScreenState.checkPlayersForElimination(context);
                       });
                     }
