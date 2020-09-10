@@ -54,8 +54,8 @@ class _GameChoiceScreenState extends State<GameChoiceScreen> {
           backgroundColor: Colors.transparent,
         ),
         backgroundColor: Colors.transparent,
-        body: ListView(
-          children: [Container(
+        body: ListView(children: [
+          Container(
             margin: EdgeInsets.all(14.0),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -81,17 +81,20 @@ class _GameChoiceScreenState extends State<GameChoiceScreen> {
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          users.toString() + (users > 1 ? ' players' : ' player'),
+                          users.toString() +
+                              (users > 1 ? ' players' : ' player'),
                           style: TextStyle(fontSize: 18, color: Colors.white),
                         ),
                       ),
                       IconButton(
                         icon: Icon(Icons.add, color: Colors.white),
-                        onPressed: () {
-                          setState(() {
-                            users++;
-                          });
-                        },
+                        onPressed: users >= 15
+                            ? null
+                            : () {
+                                setState(() {
+                                  users++;
+                                });
+                              },
                       )
                     ],
                   ),
