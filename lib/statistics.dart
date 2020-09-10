@@ -99,9 +99,19 @@ class Statistics {
     return playersEliminatedCount;
   }
 
-  static void addRowPlayed() {
+  static void addRoundPlayed() {
     totalRoundsPlayed++;
     _saveStatistics();
+  }
+
+  /// Calculates the average amount of rounds played, rounded up so you don't get
+  /// 1.5 rounds or 0.3 rounds which would be 0 when rounded down.
+  static int getAverageRoundsPlayed() {
+    if (totalRoundsPlayed == 0 || (classicGamesStarted == 0 && eliminationGamesStarted == 0)) {
+      return 0;
+    }
+    return (totalRoundsPlayed / (classicGamesStarted + eliminationGamesStarted))
+        .ceil();
   }
 
   static double getTotalRoundsPlayed() {

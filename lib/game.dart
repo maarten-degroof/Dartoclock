@@ -55,7 +55,7 @@ class _GameScreenState extends State<GameScreen> {
           context.findAncestorStateOfType<_GameScreenState>();
       stateObject.setState(() {
         round++;
-        Statistics.addRowPlayed();
+        Statistics.addRoundPlayed();
       });
       userList.forEach((element) {
         element.setHasPlayedRound(false);
@@ -162,7 +162,10 @@ class _GameScreenState extends State<GameScreen> {
 
     if (!hasSentStatistics) {
       Statistics.startedGame(gameMode);
-      Statistics.addRowPlayed();
+      // Only these game modes use rounds for now
+      if (gameMode == GameModes.Classic || gameMode == GameModes.Elimination) {
+        Statistics.addRoundPlayed();
+      }
       hasSentStatistics = true;
     }
 

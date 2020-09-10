@@ -71,7 +71,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   margin: EdgeInsets.only(top: 10, bottom: 5),
                                   child: Text(
                                     'Games started',
-                                    style: TextStyle(fontSize: 20),
+                                    style: TextStyle(fontSize: 18),
                                     textAlign: TextAlign.center,
                                   )),
                             ),
@@ -80,7 +80,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             begin: 0,
                             end: Statistics.totalStartedGames(),
                             duration: Duration(seconds: 3),
-                            style: TextStyle(fontSize: 30),
+                            style: TextStyle(fontSize: 26),
                             curve: Curves.ease,
                           ),
                           Row(children: [
@@ -89,7 +89,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   margin: EdgeInsets.only(top: 10, bottom: 5),
                                   child: Text(
                                     'Games finished',
-                                    style: TextStyle(fontSize: 20),
+                                    style: TextStyle(fontSize: 18),
                                     textAlign: TextAlign.center,
                                   )),
                             ),
@@ -100,7 +100,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                               begin: 0,
                               end: Statistics.totalFinishedGames(),
                               duration: Duration(seconds: 3),
-                              style: TextStyle(fontSize: 30),
+                              style: TextStyle(fontSize: 26),
                               curve: Curves.easeOut,
                             ),
                           ),
@@ -113,7 +113,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         Container(
                           child: Text(
                             'All your played games',
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 18),
                           ),
                           padding: EdgeInsets.all(10),
                         ),
@@ -133,30 +133,39 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Card(
                       elevation: 8,
                       margin: EdgeInsets.symmetric(vertical: 10),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                    margin: EdgeInsets.only(top: 10, bottom: 5),
-                                    child: Text(
-                                      'Players eliminated',
-                                      style: TextStyle(fontSize: 20),
-                                      textAlign: TextAlign.center,
-                                    )),
-                              ),
-                            ],
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                          ),
-                          Countup(
-                            begin: 0,
-                            end: Statistics.getPlayersEliminatedCount(),
-                            duration: Duration(seconds: 3),
-                            style: TextStyle(fontSize: 30),
-                            curve: Curves.ease,
-                          ),
-                        ],
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        child: RichText(
+                          text: TextSpan(children: [
+                            TextSpan(
+                                text: 'An average game lasts ',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 18)),
+                            TextSpan(
+                                text: Statistics.getAverageRoundsPlayed()
+                                    .toString(),
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold)),
+                            TextSpan(
+                                text: ' rounds, and in total you\'ve played ',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 18)),
+                            TextSpan(
+                                text: Statistics.getTotalRoundsPlayed()
+                                    .toInt()
+                                    .toString(),
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20)),
+                            TextSpan(
+                                text: ' rounds.',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 18)),
+                          ]),
+                        ),
                       )),
                   Card(
                       elevation: 8,
@@ -170,7 +179,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                     margin: EdgeInsets.only(top: 10, bottom: 5),
                                     child: Text(
                                       'Total score thrown by you and your friends',
-                                      style: TextStyle(fontSize: 20),
+                                      style: TextStyle(fontSize: 18),
                                       textAlign: TextAlign.center,
                                     )),
                               ),
@@ -181,7 +190,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             begin: 0,
                             end: Statistics.getTotalScoreThrown(),
                             duration: Duration(seconds: 3),
-                            style: TextStyle(fontSize: 30),
+                            style: TextStyle(fontSize: 26),
                             curve: Curves.ease,
                           ),
                           Row(
@@ -190,8 +199,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 child: Container(
                                     margin: EdgeInsets.only(top: 10, bottom: 5),
                                     child: Text(
-                                      'Total rounds played',
-                                      style: TextStyle(fontSize: 20),
+                                      'Players eliminated',
+                                      style: TextStyle(fontSize: 18),
                                       textAlign: TextAlign.center,
                                     )),
                               ),
@@ -200,9 +209,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                           Countup(
                             begin: 0,
-                            end: Statistics.getTotalRoundsPlayed(),
+                            end: Statistics.getPlayersEliminatedCount(),
                             duration: Duration(seconds: 3),
-                            style: TextStyle(fontSize: 30),
+                            style: TextStyle(fontSize: 26),
                             curve: Curves.ease,
                           ),
                         ],
