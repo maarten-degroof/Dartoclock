@@ -89,6 +89,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'Default: 360. Currently: $classicPoints.',
                   leading: Icon(Icons.score),
                   onTap: () {
+                    setState(() {
+                      _classicTextFieldController.text =
+                          classicPoints.toString();
+                    });
                     return showDialog(
                         context: context,
                         builder: (context) {
@@ -116,14 +120,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           _classicTextFieldController.text);
                                       setSharedPrefs();
                                     });
-                                    Navigator.of(context).pop();
-                                  } else {
-                                    setState(() {
-                                      _classicTextFieldController.text =
-                                          classicPoints.toString();
-                                    });
-                                    Navigator.of(context).pop();
                                   }
+                                  Navigator.of(context).pop();
                                 },
                               )
                             ],
