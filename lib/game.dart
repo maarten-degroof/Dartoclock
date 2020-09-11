@@ -665,6 +665,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       currentCountdownThrow--;
                     } else if (shouldThrowBullsEyeCountdown) {
                       hasThrownBullsEyeCountdown = true;
+                      Statistics.addScoreThrown(50);
                     }
                     if (currentCountdownThrow == 0 &&
                         (!shouldThrowBullsEyeCountdown ||
