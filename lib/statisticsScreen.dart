@@ -3,6 +3,7 @@ import 'package:dartoclock/gameModesEnum.dart';
 import 'package:dartoclock/statistics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'bottomNavigation.dart';
 import 'package:pie_chart/pie_chart.dart';
@@ -117,56 +118,62 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                           padding: EdgeInsets.all(10),
                         ),
-                        PieChart(
-                          dataMap: totalGamesMap,
-                          chartValuesOptions: ChartValuesOptions(
-                            decimalPlaces: 0,
-                            showChartValuesInPercentage: false,
-                            chartValueBackgroundColor: Colors.transparent,
-                            chartValueStyle: defaultChartValueStyle.copyWith(
-                              color: Colors.white60.withOpacity(0.9),
+                        Container(
+                          constraints: BoxConstraints(maxHeight: 200),
+                          child: PieChart(
+                            dataMap: totalGamesMap,
+                            chartValuesOptions: ChartValuesOptions(
+                              decimalPlaces: 0,
+                              showChartValuesInPercentage: false,
+                              chartValueBackgroundColor: Colors.transparent,
+                              chartValueStyle: defaultChartValueStyle.copyWith(
+                                color: Colors.white60.withOpacity(0.9),
+                              ),
                             ),
+                            animationDuration: Duration(seconds: 3),
                           ),
-                          animationDuration: Duration(seconds: 3),
                         ),
                       ])),
-                  Card(
-                      elevation: 8,
-                      margin: EdgeInsets.symmetric(vertical: 10),
-                      child: Container(
-                        margin: EdgeInsets.all(10),
-                        child: RichText(
-                          text: TextSpan(children: [
-                            TextSpan(
-                                text: 'An average game lasts ',
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 18)),
-                            TextSpan(
-                                text: Statistics.getAverageRoundsPlayed()
-                                    .toString(),
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold)),
-                            TextSpan(
-                                text: ' rounds, and in total you\'ve played ',
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 18)),
-                            TextSpan(
-                                text: Statistics.getTotalRoundsPlayed()
-                                    .toInt()
-                                    .toString(),
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20)),
-                            TextSpan(
-                                text: ' rounds.',
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 18)),
-                          ]),
-                        ),
-                      )),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Card(
+                        elevation: 8,
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        child: Container(
+                          margin: EdgeInsets.all(10),
+                          child: RichText(
+                              text: TextSpan(children: [
+                                TextSpan(
+                                    text: 'An average game lasts ',
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 18)),
+                                TextSpan(
+                                    text: Statistics.getAverageRoundsPlayed()
+                                        .toString(),
+                                    style: TextStyle(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold)),
+                                TextSpan(
+                                    text: ' rounds, and in total you\'ve played ',
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 18)),
+                                TextSpan(
+                                    text: Statistics.getTotalRoundsPlayed()
+                                        .toInt()
+                                        .toString(),
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20)),
+                                TextSpan(
+                                    text: ' rounds.',
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 18)),
+                              ]),
+                            ),
+                          ),
+                        )),
                   Card(
                       elevation: 8,
                       margin: EdgeInsets.symmetric(vertical: 10),
