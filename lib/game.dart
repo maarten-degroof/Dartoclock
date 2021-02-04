@@ -4,6 +4,7 @@ import 'package:dartoclock/history.dart';
 import 'package:dartoclock/statistics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fireworks/fireworks.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import 'bottomNavigation.dart';
@@ -853,24 +854,29 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text('Game won!'),
-            content: Text('Good news, $name won the game' +
-                (gameMode == GameModes.Countdown ? '' : ' in $round rounds') +
-                '! Do you want to finish the game?'),
-            actions: <Widget>[
-              new FlatButton(
-                  child: new Text('FINISH'),
-                  onPressed: () {
-                    GamePlaying.isPlayingAGame = false;
-                    Navigator.of(context)
-                        .popUntil(ModalRoute.withName('/gameChoice'));
-                  }),
-              new FlatButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: new Text('CANCEL'))
-            ],
-          );
+          return Stack(children: [
+            AlertDialog(
+              title: Text('Game won!'),
+              content: Text('Good news, $name won the game' +
+                  (gameMode == GameModes.Countdown ? '' : ' in $round rounds') +
+                  '! Do you want to finish the game?'),
+              actions: <Widget>[
+                new FlatButton(
+                    child: new Text('FINISH'),
+                    onPressed: () {
+                      GamePlaying.isPlayingAGame = false;
+                      Navigator.of(context)
+                          .popUntil(ModalRoute.withName('/gameChoice'));
+                    }),
+                new FlatButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: new Text('CANCEL'))
+              ],
+            ),
+            Fireworks(
+              delay: 2,
+            )
+          ]);
         });
   }
 
