@@ -156,7 +156,6 @@ class _AddPointsScreenState extends State<AddPointsScreen>
         ],
       );
     }
-    ;
     return Container();
   }
 
@@ -301,63 +300,9 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                                                   ],
                                                 ),
                                               ),
-                                              ToggleButtons(
-                                                color: Colors.black
-                                                    .withOpacity(0.60),
-                                                selectedColor:
-                                                    Color(0xFF6200EE),
-                                                selectedBorderColor:
-                                                    Color(0xFF6200EE),
-                                                fillColor: Color(0xFF6200EE)
-                                                    .withOpacity(0.08),
-                                                splashColor: Color(0xFF6200EE)
-                                                    .withOpacity(0.12),
-                                                hoverColor: Color(0xFF6200EE)
-                                                    .withOpacity(0.04),
-                                                borderRadius:
-                                                    BorderRadius.circular(4.0),
-                                                isSelected: selectedButtonOne,
-                                                onPressed: (index) {
-                                                  // Respond to button selection
-                                                  setState(() {
-                                                    selectedButtonOne[index] =
-                                                        !selectedButtonOne[
-                                                            index];
-                                                    for (int i = 0;
-                                                        i <
-                                                            selectedButtonOne
-                                                                .length;
-                                                        i++) {
-                                                      if (i != index) {
-                                                        selectedButtonOne[i] =
-                                                            false;
-                                                      }
-                                                    }
-                                                    if (selectedButtonOne[2] ||
-                                                        selectedButtonOne[3]) {
-                                                      _scoreOneController
-                                                          .clear();
-                                                    }
-                                                    _countToScoreLeft();
-                                                  });
-                                                },
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 8.0),
-                                                    child: Text('2X'),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 8.0),
-                                                    child: Text('3X'),
-                                                  ),
-                                                  Icon(Icons.favorite),
-                                                  Icon(Icons.notifications)
-                                                ],
-                                              )
+                                              _getScoreButtons(
+                                                  selectedButtonOne,
+                                                  _scoreOneController),
                                             ]),
                                         SizedBox(
                                           height: 10,
@@ -398,63 +343,9 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                                                   ],
                                                 ),
                                               ),
-                                              ToggleButtons(
-                                                color: Colors.black
-                                                    .withOpacity(0.60),
-                                                selectedColor:
-                                                    Color(0xFF6200EE),
-                                                selectedBorderColor:
-                                                    Color(0xFF6200EE),
-                                                fillColor: Color(0xFF6200EE)
-                                                    .withOpacity(0.08),
-                                                splashColor: Color(0xFF6200EE)
-                                                    .withOpacity(0.12),
-                                                hoverColor: Color(0xFF6200EE)
-                                                    .withOpacity(0.04),
-                                                borderRadius:
-                                                    BorderRadius.circular(4.0),
-                                                isSelected: selectedButtonTwo,
-                                                onPressed: (index) {
-                                                  // Respond to button selection
-                                                  setState(() {
-                                                    selectedButtonTwo[index] =
-                                                        !selectedButtonTwo[
-                                                            index];
-                                                    for (int i = 0;
-                                                        i <
-                                                            selectedButtonTwo
-                                                                .length;
-                                                        i++) {
-                                                      if (i != index) {
-                                                        selectedButtonTwo[i] =
-                                                            false;
-                                                      }
-                                                    }
-                                                    if (selectedButtonTwo[2] ||
-                                                        selectedButtonTwo[3]) {
-                                                      _scoreTwoController
-                                                          .clear();
-                                                    }
-                                                    _countToScoreLeft();
-                                                  });
-                                                },
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 8.0),
-                                                    child: Text('2X'),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 8.0),
-                                                    child: Text('3X'),
-                                                  ),
-                                                  Icon(Icons.favorite),
-                                                  Icon(Icons.notifications)
-                                                ],
-                                              )
+                                              _getScoreButtons(
+                                                  selectedButtonTwo,
+                                                  _scoreTwoController),
                                             ]),
                                         SizedBox(
                                           height: 10,
@@ -495,65 +386,9 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                                                   ],
                                                 ),
                                               ),
-                                              ToggleButtons(
-                                                color: Colors.black
-                                                    .withOpacity(0.60),
-                                                selectedColor:
-                                                    Color(0xFF6200EE),
-                                                selectedBorderColor:
-                                                    Color(0xFF6200EE),
-                                                fillColor: Color(0xFF6200EE)
-                                                    .withOpacity(0.08),
-                                                splashColor: Color(0xFF6200EE)
-                                                    .withOpacity(0.12),
-                                                hoverColor: Color(0xFF6200EE)
-                                                    .withOpacity(0.04),
-                                                borderRadius:
-                                                    BorderRadius.circular(4.0),
-                                                isSelected: selectedButtonThree,
-                                                onPressed: (index) {
-                                                  // Respond to button selection
-                                                  setState(() {
-                                                    selectedButtonThree[index] =
-                                                        !selectedButtonThree[
-                                                            index];
-                                                    for (int i = 0;
-                                                        i <
-                                                            selectedButtonThree
-                                                                .length;
-                                                        i++) {
-                                                      if (i != index) {
-                                                        selectedButtonThree[i] =
-                                                            false;
-                                                      }
-                                                    }
-                                                    if (selectedButtonThree[
-                                                            2] ||
-                                                        selectedButtonThree[
-                                                            3]) {
-                                                      _scoreThreeController
-                                                          .clear();
-                                                    }
-                                                    _countToScoreLeft();
-                                                  });
-                                                },
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 8.0),
-                                                    child: Text('2X'),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 8.0),
-                                                    child: Text('3X'),
-                                                  ),
-                                                  Icon(Icons.favorite),
-                                                  Icon(Icons.notifications)
-                                                ],
-                                              )
+                                              _getScoreButtons(
+                                                  selectedButtonThree,
+                                                  _scoreThreeController),
                                             ]),
                                         Column(
                                             mainAxisAlignment:
@@ -641,6 +476,51 @@ class _AddPointsScreenState extends State<AddPointsScreen>
           ]),
         ),
       ]),
+    );
+  }
+
+  /// Loads the toggle buttons (2X, 3X, bull and bullseye)
+  /// the buttonList is a list of bools saying which button is selected
+  /// the scoreController is the TextEditingController which is connected to the
+  /// input field of the throw: if bull(seye) is pressed, clears the input field.
+  ToggleButtons _getScoreButtons(
+      List<bool> buttonList, TextEditingController scoreController) {
+    return ToggleButtons(
+      color: Colors.black.withOpacity(0.60),
+      selectedColor: Color(0xFF6200EE),
+      selectedBorderColor: Color(0xFF6200EE),
+      fillColor: Color(0xFF6200EE).withOpacity(0.08),
+      splashColor: Color(0xFF6200EE).withOpacity(0.12),
+      hoverColor: Color(0xFF6200EE).withOpacity(0.04),
+      borderRadius: BorderRadius.circular(4.0),
+      isSelected: buttonList,
+      onPressed: (index) {
+        // Respond to button selection
+        setState(() {
+          buttonList[index] = !buttonList[index];
+          for (int i = 0; i < buttonList.length; i++) {
+            if (i != index) {
+              buttonList[i] = false;
+            }
+          }
+          if (buttonList[2] || buttonList[3]) {
+            scoreController.clear();
+          }
+          _countToScoreLeft();
+        });
+      },
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text('2X'),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text('3X'),
+        ),
+        Icon(Icons.favorite),
+        Icon(Icons.notifications)
+      ],
     );
   }
 
