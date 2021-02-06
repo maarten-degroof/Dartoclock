@@ -11,6 +11,7 @@ class AddPointsScreen extends StatefulWidget {
 
   AddPointsScreen(this.startScore, this.user, this.userId,
       this.previousThrowText, this.gameMode) {
+    // Put the score at a higher count than can possibly be thrown now so it's always good
     if (gameMode == GameModes.Elimination) {
       startScore = 10000;
     }
@@ -19,6 +20,8 @@ class AddPointsScreen extends StatefulWidget {
   @override
   _AddPointsScreenState createState() => _AddPointsScreenState();
 }
+
+const MAX_DART_INPUT = 20;
 
 class _AddPointsScreenState extends State<AddPointsScreen>
     with TickerProviderStateMixin {
@@ -48,11 +51,6 @@ class _AddPointsScreenState extends State<AddPointsScreen>
     isWindowShowing = true;
     scoreLeft = widget.startScore;
     currentThrow = 0;
-
-    // Put the score at a higher count than can possibly be thrown now so it's always good
-    if (widget.gameMode == GameModes.Elimination) {
-      scoreLeft = 10000;
-    }
   }
 
   @override
@@ -64,63 +62,50 @@ class _AddPointsScreenState extends State<AddPointsScreen>
     super.dispose();
   }
 
-  void _countToScoreLeft() {
+  /// Calculates the total thrown value from a given button list and a given text controller
+  /// This will check if bull(seye) is thrown. If not it will check if the player
+  /// filled in a valid number in the controller (which will be multiplied if one
+  /// of those buttons is selected).
+  int _calculateRowScore(
+      List<bool> buttonList, TextEditingController controller) {
+    int scoreThrown = 0;
+
+    // Bullseye
+    if (buttonList[3]) {
+      scoreThrown = 50;
+    }
+    // Bull
+    else if (buttonList[2]) {
+      scoreThrown = 25;
+    }
+    // Check what the user filled in
+    else if (controller.text.isNotEmpty) {
+      int score = int.parse(controller.text);
+      if (score <= MAX_DART_INPUT) {
+        // 2X
+        if (buttonList[0]) {
+          scoreThrown = (score * 2);
+        }
+        // 3X
+        else if (buttonList[1]) {
+          scoreThrown = (score * 3);
+        }
+        // No button selected
+        else {
+          scoreThrown = score;
+        }
+      }
+    }
+    return scoreThrown;
+  }
+
+  void _calculateScoreLeft() {
     int scoreThrown = 0;
     _formKey.currentState.validate();
 
-    /// Field 1
-    if (selectedButtonOne[3]) {
-      scoreThrown += 50;
-    } else if (selectedButtonOne[2]) {
-      scoreThrown += 25;
-    } else if (_scoreOneController.text.isNotEmpty) {
-      int score = int.parse(_scoreOneController.text);
-      if (score <= 20) {
-        if (selectedButtonOne[0]) {
-          scoreThrown += (score * 2);
-        } else if (selectedButtonOne[1]) {
-          scoreThrown += (score * 3);
-        } else {
-          scoreThrown += score;
-        }
-      }
-    }
-
-    /// Field 2
-    if (selectedButtonTwo[3]) {
-      scoreThrown += 50;
-    } else if (selectedButtonTwo[2]) {
-      scoreThrown += 25;
-    } else if (_scoreTwoController.text.isNotEmpty) {
-      int score = int.parse(_scoreTwoController.text);
-      if (score <= 20) {
-        if (selectedButtonTwo[0]) {
-          scoreThrown += (score * 2);
-        } else if (selectedButtonTwo[1]) {
-          scoreThrown += (score * 3);
-        } else {
-          scoreThrown += score;
-        }
-      }
-    }
-
-    /// Field 3
-    if (selectedButtonThree[3]) {
-      scoreThrown += 50;
-    } else if (selectedButtonThree[2]) {
-      scoreThrown += 25;
-    } else if (_scoreThreeController.text.isNotEmpty) {
-      int score = int.parse(_scoreThreeController.text);
-      if (score <= 20) {
-        if (selectedButtonThree[0]) {
-          scoreThrown += (score * 2);
-        } else if (selectedButtonThree[1]) {
-          scoreThrown += (score * 3);
-        } else {
-          scoreThrown += score;
-        }
-      }
-    }
+    scoreThrown += _calculateRowScore(selectedButtonOne, _scoreOneController);
+    scoreThrown += _calculateRowScore(selectedButtonTwo, _scoreTwoController);
+    scoreThrown += _calculateRowScore(selectedButtonThree, _scoreThreeController);
 
     setState(() {
       currentThrow = scoreThrown;
@@ -240,7 +225,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                       // AnimatedOpacity takes care of hiding the content when
                       // the back button is pressed.
                       opacity: isWindowShowing ? 1.0 : 0.0,
-                      duration: Duration(milliseconds: 500),
+                      duration: Duration(milliseconds: 5000),
                       child: FadeTransition(
                           opacity: scaleAnimation,
                           child: ScaleTransition(
@@ -263,133 +248,18 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                                   Form(
                                       key: _formKey,
                                       child: Column(children: [
-                                        Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                '1: ',
-                                                style: TextStyle(fontSize: 18),
-                                              ),
-                                              Container(
-                                                width: 60,
-                                                child: TextFormField(
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  validator: (value) {
-                                                    if (value.isNotEmpty &&
-                                                        (int.parse(value) <=
-                                                                0 ||
-                                                            int.parse(value) >
-                                                                20)) {
-                                                      return 'Please fill in a number between 1 and 20';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  onChanged: (value) {
-                                                    _countToScoreLeft();
-                                                  },
-                                                  controller:
-                                                      _scoreOneController,
-                                                  inputFormatters: <
-                                                      TextInputFormatter>[
-                                                    WhitelistingTextInputFormatter
-                                                        .digitsOnly,
-                                                    new LengthLimitingTextInputFormatter(
-                                                        2)
-                                                  ],
-                                                ),
-                                              ),
-                                              _getScoreButtons(
-                                                  selectedButtonOne,
-                                                  _scoreOneController),
-                                            ]),
+                                        _getInputRow(1, _scoreOneController,
+                                            selectedButtonOne),
                                         SizedBox(
                                           height: 10,
                                         ),
-                                        Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text('2: ',
-                                                  style:
-                                                      TextStyle(fontSize: 18)),
-                                              Container(
-                                                width: 60,
-                                                child: TextFormField(
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  validator: (value) {
-                                                    if (value.isNotEmpty &&
-                                                        (int.parse(value) <=
-                                                                0 ||
-                                                            int.parse(value) >
-                                                                20)) {
-                                                      return 'Please fill in a number between 1 and 20';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  onChanged: (value) {
-                                                    _countToScoreLeft();
-                                                  },
-                                                  controller:
-                                                      _scoreTwoController,
-                                                  inputFormatters: <
-                                                      TextInputFormatter>[
-                                                    WhitelistingTextInputFormatter
-                                                        .digitsOnly,
-                                                    new LengthLimitingTextInputFormatter(
-                                                        2)
-                                                  ],
-                                                ),
-                                              ),
-                                              _getScoreButtons(
-                                                  selectedButtonTwo,
-                                                  _scoreTwoController),
-                                            ]),
+                                        _getInputRow(2, _scoreTwoController,
+                                            selectedButtonTwo),
                                         SizedBox(
                                           height: 10,
                                         ),
-                                        Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text('3: ',
-                                                  style:
-                                                      TextStyle(fontSize: 18)),
-                                              Container(
-                                                width: 60,
-                                                child: TextFormField(
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  validator: (value) {
-                                                    if (value.isNotEmpty &&
-                                                        (int.parse(value) <=
-                                                                0 ||
-                                                            int.parse(value) >
-                                                                20)) {
-                                                      return 'Please fill in a number between 1 and 20';
-                                                    }
-                                                    return null;
-                                                  },
-                                                  onChanged: (value) {
-                                                    _countToScoreLeft();
-                                                  },
-                                                  controller:
-                                                      _scoreThreeController,
-                                                  inputFormatters: <
-                                                      TextInputFormatter>[
-                                                    WhitelistingTextInputFormatter
-                                                        .digitsOnly,
-                                                    new LengthLimitingTextInputFormatter(
-                                                        2)
-                                                  ],
-                                                ),
-                                              ),
-                                              _getScoreButtons(
-                                                  selectedButtonThree,
-                                                  _scoreThreeController),
-                                            ]),
+                                        _getInputRow(3, _scoreThreeController,
+                                            selectedButtonThree),
                                         Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceAround,
@@ -479,6 +349,39 @@ class _AddPointsScreenState extends State<AddPointsScreen>
     );
   }
 
+  /// Loads the input row (the input field + the buttons)
+  /// the controller is the TextEditingController which is connected to the
+  /// input field of the throw: it is used to calculate the total score
+  /// the buttonList is a list of booleans saying which button is selected
+  Row _getInputRow(
+      int id, TextEditingController controller, List<bool> buttonList) {
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Text('$id: ', style: TextStyle(fontSize: 18)),
+      Container(
+        width: 60,
+        child: TextFormField(
+          keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value.isNotEmpty &&
+                (int.parse(value) < 0 || int.parse(value) > MAX_DART_INPUT)) {
+              return 'Please fill in a number between 0 and $MAX_DART_INPUT';
+            }
+            return null;
+          },
+          onChanged: (value) {
+            _calculateScoreLeft();
+          },
+          controller: controller,
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.digitsOnly,
+            new LengthLimitingTextInputFormatter(2)
+          ],
+        ),
+      ),
+      _getScoreButtons(buttonList, controller),
+    ]);
+  }
+
   /// Loads the toggle buttons (2X, 3X, bull and bullseye)
   /// the buttonList is a list of bools saying which button is selected
   /// the scoreController is the TextEditingController which is connected to the
@@ -506,7 +409,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
           if (buttonList[2] || buttonList[3]) {
             scoreController.clear();
           }
-          _countToScoreLeft();
+          _calculateScoreLeft();
         });
       },
       children: [

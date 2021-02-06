@@ -94,14 +94,14 @@ class _GameScreenState extends State<GameScreen> {
   static Future<void> checkPlayersForElimination(BuildContext context) async {
     List<int> playerScores = List();
 
-    userList.forEach((element) {
+    userList.forEach((player) {
       // add a number so high you can't ever throw it so this player isn't a problem
-      if (element.isPlayerEliminated()) {
+      if (player.isPlayerEliminated()) {
         playerScores.add(10000);
-      } else if (!element.hasPlayedRound()) {
+      } else if (!player.hasPlayedRound()) {
         playerScores.add(null);
       } else {
-        playerScores.add(element.getScore());
+        playerScores.add(player.getScore());
       }
     });
 
@@ -741,7 +741,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       pageBuilder: (context, animation, secondaryAnimation) =>
                           AddPointsScreen(score, name, id,
                               _generatePreviousThrow(), gameMode),
-                      transitionDuration: Duration(milliseconds: 1000),
+                      transitionDuration: Duration(milliseconds: 10000),
                     ));
                     if (result != null) {
                       setState(() {
