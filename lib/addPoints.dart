@@ -219,13 +219,13 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                           style: TextStyle(color: Colors.black, fontSize: 22),
                         ),
                       ),
-                    ),
+                    ), 
                     _buildHero(),
                     AnimatedOpacity(
                       // AnimatedOpacity takes care of hiding the content when
                       // the back button is pressed.
                       opacity: isWindowShowing ? 1.0 : 0.0,
-                      duration: Duration(milliseconds: 5000),
+                      duration: Duration(milliseconds: 10),
                       child: FadeTransition(
                           opacity: scaleAnimation,
                           child: ScaleTransition(

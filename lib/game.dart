@@ -741,7 +741,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       pageBuilder: (context, animation, secondaryAnimation) =>
                           AddPointsScreen(score, name, id,
                               _generatePreviousThrow(), gameMode),
-                      transitionDuration: Duration(milliseconds: 10000),
+                      transitionDuration: Duration(milliseconds: 1000),
+                      reverseTransitionDuration: Duration(milliseconds: 1000),
                     ));
                     if (result != null) {
                       setState(() {
