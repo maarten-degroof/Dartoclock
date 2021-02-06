@@ -1,14 +1,17 @@
+import 'dart:math';
+
 import 'package:dartoclock/gameModesEnum.dart';
 import 'package:dartoclock/gamePlaying.dart';
 import 'package:dartoclock/history.dart';
 import 'package:dartoclock/statistics.dart';
+import 'package:fireworks/fireworks.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fireworks/fireworks.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:math';
-import 'bottomNavigation.dart';
+import 'package:show_up_animation/show_up_animation.dart';
+
 import 'addPoints.dart';
+import 'bottomNavigation.dart';
 
 GameModes gameMode;
 int userCount;
@@ -225,8 +228,17 @@ class _GameScreenState extends State<GameScreen> {
                       ]),
                     ),
                   ),
-                  for (int i = 0; i < userList.length; i++)
-                    userList.elementAt(i),
+
+                    ShowUpList(
+                      direction: Direction.horizontal,
+                      animationDuration: Duration(milliseconds: 1200),
+                      delayBetween: Duration(milliseconds: 600),
+                      offset: -0.2,
+                      children: <Widget>[
+                        for (int i = 0; i < userList.length; i++)
+                          userList.elementAt(i)
+                      ],
+                    ),
                 ],
               ),
             ),
