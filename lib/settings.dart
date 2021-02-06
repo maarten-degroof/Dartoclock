@@ -84,11 +84,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SettingsSection(title: 'Classic game', tiles: [
                 SettingsTile(
                   title: 'Score to reach',
+                  subtitleMaxLines: 10,
                   subtitle: 'What is the score you want to start with? '
                       'Changing this value will only affect future games. '
                       'Default: 360. Currently: $classicPoints.',
                   leading: Icon(Icons.score),
-                  onTap: () {
+                  onPressed: (context) {
                     setState(() {
                       _classicTextFieldController.text =
                           classicPoints.toString();
@@ -102,7 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               keyboardType: TextInputType.number,
                               controller: _classicTextFieldController,
                               inputFormatters: <TextInputFormatter>[
-                                WhitelistingTextInputFormatter.digitsOnly,
+                                FilteringTextInputFormatter.digitsOnly,
                                 new LengthLimitingTextInputFormatter(4)
                               ],
                             ),
@@ -135,6 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 tiles: [
                   SettingsTile.switchTile(
                       title: 'End with a bang',
+                      subtitleMaxLines: 5,
                       subtitle:
                           'Extra difficulty: after throwing the 1 you win by throwing bullseye.',
                       leading: Icon(Icons.notifications),
@@ -152,10 +154,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 tiles: [
                   SettingsTile(
                     title: 'GitHub',
+                    subtitleMaxLines: 5,
                     subtitle:
                         'Go to the GitHub-page to find the latest release.',
                     leading: Icon(CustomIcons.github_mark),
-                    onTap: () {
+                    onPressed: (context) {
                       _launchGithub();
                     },
                   ),
@@ -166,10 +169,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   SettingsTile(
                     title: 'Reset statistics',
+                    subtitleMaxLines: 5,
                     subtitle:
                         'This resets all the statistics back to zero so you can start over.',
                     leading: Icon(Icons.undo),
-                    onTap: () {
+                    onPressed: (context) {
                       return showDialog(
                           context: context,
                           builder: (context) {

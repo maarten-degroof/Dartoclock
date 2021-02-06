@@ -219,7 +219,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                           style: TextStyle(color: Colors.black, fontSize: 22),
                         ),
                       ),
-                    ), 
+                    ),
                     _buildHero(),
                     AnimatedOpacity(
                       // AnimatedOpacity takes care of hiding the content when
