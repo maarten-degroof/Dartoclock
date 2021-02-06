@@ -45,13 +45,13 @@ class BottomNavigation extends StatelessWidget {
       },
       items: [
         BottomNavigationBarItem(
-            title: Text('Game'), icon: Icon(Icons.play_arrow)),
+            label: 'Game', icon: Icon(Icons.play_arrow)),
         BottomNavigationBarItem(
-            title: Text('Rules'), icon: Icon(Icons.library_books)),
+            label: 'Rules', icon: Icon(Icons.library_books)),
         BottomNavigationBarItem(
-            title: Text('Statistics'), icon: Icon(Icons.assessment)),
+            label: 'Statistics', icon: Icon(Icons.assessment)),
         BottomNavigationBarItem(
-            title: Text('Settings'), icon: Icon(Icons.settings)),
+            label: 'Settings', icon: Icon(Icons.settings)),
       ],
     );
   }
