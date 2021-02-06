@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:show_up_animation/show_up_animation.dart';
+import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 
 import 'addPoints.dart';
 import 'bottomNavigation.dart';
@@ -69,13 +70,17 @@ class _GameScreenState extends State<GameScreen> {
 
   static Future<dynamic> _showPlayerEliminatedDialog(
       String playerName, BuildContext context) {
-    return showDialog(
+    return showAnimatedDialog(
+        animationType: DialogTransitionType.size,
+        curve: Curves.easeInOut,
+        duration: Duration(milliseconds: 1000),
+        barrierDismissible: true,
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text('Oh no!'),
-            content: Text(
-                playerName + ' had the lowest score and has been eliminated.'),
+          return ClassicGeneralDialogWidget(
+            titleText: 'Oh no!',
+            contentText:
+                playerName + ' had the lowest score and has been eliminated.',
             actions: <Widget>[
               new FlatButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -228,17 +233,16 @@ class _GameScreenState extends State<GameScreen> {
                       ]),
                     ),
                   ),
-
-                    ShowUpList(
-                      direction: Direction.horizontal,
-                      animationDuration: Duration(milliseconds: 1200),
-                      delayBetween: Duration(milliseconds: 600),
-                      offset: -0.2,
-                      children: <Widget>[
-                        for (int i = 0; i < userList.length; i++)
-                          userList.elementAt(i)
-                      ],
-                    ),
+                  ShowUpList(
+                    direction: Direction.horizontal,
+                    animationDuration: Duration(milliseconds: 1200),
+                    delayBetween: Duration(milliseconds: 600),
+                    offset: -0.2,
+                    children: <Widget>[
+                      for (int i = 0; i < userList.length; i++)
+                        userList.elementAt(i)
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -278,32 +282,37 @@ class _GameScreenState extends State<GameScreen> {
   /// This shows the dialog that asks if you want to quit the current game
   /// So you can choose a different game mode or start over
   Future<bool> _showQuitGameDialog() {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text('Quit current game'),
-            content: Text(
-                'Are you sure you want to quit the current game and go back to the window to choose a game mode?'),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text('QUIT'),
+    return showAnimatedDialog(
+      animationType: DialogTransitionType.size,
+      curve: Curves.easeInOut,
+      duration: Duration(seconds: 1),
+      barrierDismissible: true,
+      context: context,
+      builder: (context) {
+        return ClassicGeneralDialogWidget(
+          titleText: 'Quit current game',
+          contentText:
+              'Are you sure you want to quit the current game and go back to the window to choose a game mode?',
+          actions: [
+            new FlatButton(
+              child: new Text('QUIT'),
+              onPressed: () {
+                GamePlaying.isPlayingAGame = false;
+                Navigator.of(context)
+                    .popUntil(ModalRoute.withName('/gameChoice'));
+                return true;
+              },
+            ),
+            new FlatButton(
                 onPressed: () {
-                  GamePlaying.isPlayingAGame = false;
-                  Navigator.of(context)
-                      .popUntil(ModalRoute.withName('/gameChoice'));
-                  return true;
+                  Navigator.of(context).pop();
+                  return false;
                 },
-              ),
-              new FlatButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    return false;
-                  },
-                  child: new Text('CANCEL'))
-            ],
-          );
-        });
+                child: new Text('CANCEL'))
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -495,10 +504,15 @@ class _PlayerScreenState extends State<PlayerScreen> {
           IconButton(
             icon: Icon(Icons.edit),
             onPressed: () {
-              return showDialog(
+              _textFieldController.text = name;
+              return showAnimatedDialog(
+                  animationType: DialogTransitionType.size,
+                  curve: Curves.easeInOut,
+                  duration: Duration(seconds: 1),
+                  barrierDismissible: true,
                   context: context,
                   builder: (context) {
-                    return AlertDialog(
+                    return CustomDialogWidget(
                       title: Text('Editing player name'),
                       content: TextField(
                         maxLength: 20,
@@ -517,7 +531,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
                               Navigator.of(context).pop();
                             }
                           },
-                        )
+                        ),
+                        new FlatButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: new Text('CANCEL'))
                       ],
                     );
                   });
@@ -603,12 +620,15 @@ class _PlayerScreenState extends State<PlayerScreen> {
             onPressed: (isPlayerEliminated() || playerWins || roundPlayed)
                 ? null
                 : () async {
-                    final result =
-                        await Navigator.of(context).push(PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          AddPointsScreen(score, name, id, null, gameMode),
-                      transitionDuration: Duration(milliseconds: 1000),
-                    ));
+                    final result = await Navigator.of(context).push(
+                        PageRouteBuilder(
+                            pageBuilder: (context, animation,
+                                    secondaryAnimation) =>
+                                AddPointsScreen(
+                                    score, name, id, null, gameMode),
+                            transitionDuration: Duration(milliseconds: 1000),
+                            reverseTransitionDuration:
+                                Duration(milliseconds: 1000)));
                     if (result != null) {
                       setState(() {
                         roundPlayed = true;
@@ -864,15 +884,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   Future<dynamic> _showWinningDialog() {
     Statistics.finishedGame(gameMode);
-    return showDialog(
+    return showAnimatedDialog(
+        animationType: DialogTransitionType.size,
+        curve: Curves.easeInOut,
+        duration: Duration(milliseconds: 1500),
+        barrierDismissible: true,
         context: context,
         builder: (context) {
           return Stack(children: [
-            AlertDialog(
-              title: Text('Game won!'),
-              content: Text('Good news, $name won the game' +
+            ClassicGeneralDialogWidget(
+              titleText: 'Game won!',
+              contentText: 'Good news, $name won the game' +
                   (gameMode == GameModes.Countdown ? '' : ' in $round rounds') +
-                  '! Do you want to finish the game?'),
+                  '! Do you want to finish the game?',
               actions: <Widget>[
                 new FlatButton(
                     child: new Text('FINISH'),
@@ -907,15 +931,19 @@ class _PlayerScreenState extends State<PlayerScreen> {
       lastThrownScore = currentCountdownThrow + 1;
     }
 
-    return showDialog(
+    return showAnimatedDialog(
+        animationType: DialogTransitionType.size,
+        curve: Curves.easeInOut,
+        duration: Duration(milliseconds: 1000),
+        barrierDismissible: true,
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text('Undo previous move'),
-            content: Text(
+          return ClassicGeneralDialogWidget(
+            titleText: 'Undo previous move',
+            contentText:
                 'Are you sure you want to Undo the previous move? You threw a score of ' +
                     lastThrownScore.toString() +
-                    ' that turn.'),
+                    ' that turn.',
             actions: <Widget>[
               new FlatButton(
                 child: new Text('UNDO'),

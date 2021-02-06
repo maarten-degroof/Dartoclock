@@ -3,6 +3,7 @@ import 'package:dartoclock/statistics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:package_info/package_info.dart';
 import 'package:settings_ui/settings_ui.dart';
@@ -94,10 +95,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _classicTextFieldController.text =
                           classicPoints.toString();
                     });
-                    return showDialog(
+                    return showAnimatedDialog(
+                        animationType: DialogTransitionType.size,
+                        curve: Curves.easeInOut,
+                        duration: Duration(seconds: 1),
+                        barrierDismissible: true,
                         context: context,
                         builder: (context) {
-                          return AlertDialog(
+                          return CustomDialogWidget(
                             title: Text('Classic start number'),
                             content: TextField(
                               keyboardType: TextInputType.number,
@@ -174,13 +179,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         'This resets all the statistics back to zero so you can start over.',
                     leading: Icon(Icons.undo),
                     onPressed: (context) {
-                      return showDialog(
+                      return showAnimatedDialog(
+                          animationType: DialogTransitionType.size,
+                          curve: Curves.easeInOut,
+                          duration: Duration(seconds: 1),
+                          barrierDismissible: true,
                           context: context,
                           builder: (context) {
-                            return AlertDialog(
-                              title: Text('Reset statistics'),
-                              content: Text(
-                                  'Are you sure you want to reset all your statistics back to zero?'),
+                            return ClassicGeneralDialogWidget(
+                              titleText: 'Reset statistics',
+                              contentText:
+                                  'Are you sure you want to reset all your statistics back to zero?',
                               actions: <Widget>[
                                 FlatButton(
                                   child: Text('RESET'),
