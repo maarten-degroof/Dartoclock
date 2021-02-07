@@ -400,6 +400,11 @@ class _AddPointsScreenState extends State<AddPointsScreen>
               return null;
             },
             onChanged: (value) {
+              setState(() {
+                // Unset the bull(seye) buttons when something is typed
+                buttonList[2] = false;
+                buttonList[3] = false;
+              });
               _calculateScoreLeft();
             },
             controller: controller,
