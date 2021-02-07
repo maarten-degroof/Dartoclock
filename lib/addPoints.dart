@@ -1,6 +1,7 @@
 import 'package:dartoclock/gameModesEnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 
 class AddPointsScreen extends StatefulWidget {
   int startScore;
@@ -34,6 +35,9 @@ class _AddPointsScreenState extends State<AddPointsScreen>
   final selectedButtonOne = <bool>[false, false, false, false];
   final selectedButtonTwo = <bool>[false, false, false, false];
   final selectedButtonThree = <bool>[false, false, false, false];
+
+  // There's a bool for each input row. True if that row has an invalid input
+  final invalidInput = <bool>[false, false, false];
 
   bool isWindowShowing;
   int scoreLeft;
@@ -105,7 +109,8 @@ class _AddPointsScreenState extends State<AddPointsScreen>
 
     scoreThrown += _calculateRowScore(selectedButtonOne, _scoreOneController);
     scoreThrown += _calculateRowScore(selectedButtonTwo, _scoreTwoController);
-    scoreThrown += _calculateRowScore(selectedButtonThree, _scoreThreeController);
+    scoreThrown +=
+        _calculateRowScore(selectedButtonThree, _scoreThreeController);
 
     setState(() {
       currentThrow = scoreThrown;
@@ -186,6 +191,11 @@ class _AddPointsScreenState extends State<AddPointsScreen>
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0.0,
+            title: Text(
+              'Add throw',
+              style: TextStyle(color: Colors.black),
+            ),
+            centerTitle: true,
             leading: Hero(
               tag: widget.userId.toString() + "_backIcon",
               child: Material(
@@ -195,10 +205,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                   icon: Icon(Icons.arrow_back),
                   color: Colors.grey,
                   onPressed: () {
-                    setState(() {
-                      isWindowShowing = false;
-                    });
-                    Navigator.of(context).pop();
+                    _returnToPreviousScreen();
                   },
                 ),
               ),
@@ -302,13 +309,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                                                         OutlineButton(
                                                           child: Text('CANCEL'),
                                                           onPressed: () {
-                                                            setState(() {
-                                                              isWindowShowing =
-                                                                  false;
-                                                            });
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
+                                                            _returnToPreviousScreen();
                                                           },
                                                         ),
                                                         RaisedButton(
@@ -322,14 +323,23 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                                                           onPressed: () {
                                                             if (scoreLeft >=
                                                                 0) {
-                                                              setState(() {
-                                                                isWindowShowing =
-                                                                    false;
-                                                              });
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop(
-                                                                      currentThrow);
+                                                              if (invalidInput
+                                                                  .contains(
+                                                                      true)) {
+                                                                _showInvalidPointsDialog()
+                                                                    .then(
+                                                                        (value) {
+                                                                  if (value) {
+                                                                    _returnToPreviousScreen(
+                                                                        scoreThrown:
+                                                                            currentThrow);
+                                                                  }
+                                                                });
+                                                              } else {
+                                                                _returnToPreviousScreen(
+                                                                    scoreThrown:
+                                                                        currentThrow);
+                                                              }
                                                             } else {
                                                               _showTooFewPointsDialog();
                                                             }
@@ -349,36 +359,81 @@ class _AddPointsScreenState extends State<AddPointsScreen>
     );
   }
 
+  /// Sets the windowShowing to false so the content of this screen is hidden
+  /// when the back animation starts.
+  /// Pops the window to go back to the game. Gives the current throw with it.
+  void _returnToPreviousScreen({int scoreThrown}) {
+    setState(() {
+      isWindowShowing = false;
+    });
+    if (scoreThrown == null) {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pop(scoreThrown);
+    }
+  }
+
   /// Loads the input row (the input field + the buttons)
   /// the controller is the TextEditingController which is connected to the
   /// input field of the throw: it is used to calculate the total score
   /// the buttonList is a list of booleans saying which button is selected
-  Row _getInputRow(
+  Column _getInputRow(
       int id, TextEditingController controller, List<bool> buttonList) {
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Text('$id: ', style: TextStyle(fontSize: 18)),
-      Container(
-        width: 60,
-        child: TextFormField(
-          keyboardType: TextInputType.number,
-          validator: (value) {
-            if (value.isNotEmpty &&
-                (int.parse(value) < 0 || int.parse(value) > MAX_DART_INPUT)) {
-              return 'Please fill in a number between 0 and $MAX_DART_INPUT';
-            }
-            return null;
-          },
-          onChanged: (value) {
-            _calculateScoreLeft();
-          },
-          controller: controller,
-          inputFormatters: <TextInputFormatter>[
-            FilteringTextInputFormatter.digitsOnly,
-            new LengthLimitingTextInputFormatter(2)
-          ],
+    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Text('$id: ', style: TextStyle(fontSize: 18)),
+        Container(
+          width: 60,
+          child: TextFormField(
+            keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value.isNotEmpty &&
+                  (int.parse(value) < 0 || int.parse(value) > MAX_DART_INPUT)) {
+                setState(() {
+                  invalidInput[id - 1] = true;
+                });
+              } else {
+                setState(() {
+                  invalidInput[id - 1] = false;
+                });
+              }
+              return null;
+            },
+            onChanged: (value) {
+              _calculateScoreLeft();
+            },
+            controller: controller,
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly,
+              new LengthLimitingTextInputFormatter(2)
+            ],
+          ),
         ),
-      ),
-      _getScoreButtons(buttonList, controller),
+        _getScoreButtons(buttonList, controller),
+      ]),
+      (invalidInput[id - 1])
+          ? Padding(
+              padding: EdgeInsets.all(5),
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                  children: [
+                    WidgetSpan(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        child: Icon(
+                          Icons.info_outline,
+                          color: Colors.red,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                    TextSpan(text: 'This score is not possible'),
+                  ],
+                ),
+              ),
+            )
+          : Container()
     ]);
   }
 
@@ -429,17 +484,52 @@ class _AddPointsScreenState extends State<AddPointsScreen>
 
   /// This shows the dialog that tells you you filled in more points than you had
   Future<dynamic> _showTooFewPointsDialog() {
-    return showDialog(
+    return showAnimatedDialog(
+        animationType: DialogTransitionType.size,
+        curve: Curves.easeInOut,
+        duration: Duration(seconds: 1),
+        barrierDismissible: true,
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: Text('Bad point count'),
-            content: Text(
-                'You threw more points than you needed in total, which is not good. Please fill in less points or skip this turn.'),
+          return ClassicGeneralDialogWidget(
+            titleText: 'Bad point count',
+            contentText:
+                'You threw more points than you needed in total, which is bad. '
+                'Please fill in less points or skip this turn.',
             actions: <Widget>[
               new FlatButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: new Text('OK'))
+            ],
+          );
+        });
+  }
+
+  /// This shows the dialog that tells you you filled in more points than you had
+  Future<dynamic> _showInvalidPointsDialog() {
+    return showAnimatedDialog(
+        animationType: DialogTransitionType.size,
+        curve: Curves.easeInOut,
+        duration: Duration(seconds: 1),
+        barrierDismissible: true,
+        context: context,
+        builder: (context) {
+          return ClassicGeneralDialogWidget(
+            titleText: 'Invalid input',
+            contentText:
+                'You filled in scores that won\'t be counted. These values won\'t '
+                    'be used. Are you sure you want to continue?',
+            actions: <Widget>[
+              new FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: new Text('Continue')),
+              new FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: new Text('Cancel'))
             ],
           );
         });
