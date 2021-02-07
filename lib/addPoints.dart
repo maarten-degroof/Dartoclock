@@ -410,7 +410,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
             controller: controller,
             inputFormatters: <TextInputFormatter>[
               FilteringTextInputFormatter.digitsOnly,
-              new LengthLimitingTextInputFormatter(2)
+              LengthLimitingTextInputFormatter(2)
             ],
           ),
         ),
@@ -502,9 +502,9 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                 'You threw more points than you needed in total, which is bad. '
                 'Please fill in less points or skip this turn.',
             actions: <Widget>[
-              new FlatButton(
+              TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: new Text('OK'))
+                  child: Text('OK'))
             ],
           );
         });
@@ -525,16 +525,16 @@ class _AddPointsScreenState extends State<AddPointsScreen>
                 'You filled in scores that won\'t be counted. These values won\'t '
                 'be used. Are you sure you want to continue?',
             actions: <Widget>[
-              new FlatButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(true);
-                  },
-                  child: new Text('Continue')),
-              new FlatButton(
+              TextButton(
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },
-                  child: new Text('Cancel'))
+                  child: Text('CANCEL')),
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text('CONTINUE')),
             ],
           );
         });

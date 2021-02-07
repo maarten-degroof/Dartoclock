@@ -82,9 +82,9 @@ class _GameScreenState extends State<GameScreen> {
             contentText:
                 playerName + ' had the lowest score and has been eliminated.',
             actions: <Widget>[
-              new FlatButton(
+              TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: new Text('OKAY'))
+                  child: Text('OKAY'))
             ],
           );
         });
@@ -294,8 +294,14 @@ class _GameScreenState extends State<GameScreen> {
           contentText:
               'Are you sure you want to quit the current game and go back to the window to choose a game mode?',
           actions: [
-            new FlatButton(
-              child: new Text('QUIT'),
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  return false;
+                },
+                child: Text('CANCEL')),
+            TextButton(
+              child: Text('QUIT'),
               onPressed: () {
                 GamePlaying.isPlayingAGame = false;
                 Navigator.of(context)
@@ -303,12 +309,6 @@ class _GameScreenState extends State<GameScreen> {
                 return true;
               },
             ),
-            new FlatButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  return false;
-                },
-                child: new Text('CANCEL'))
           ],
         );
       },
@@ -519,8 +519,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         controller: _textFieldController,
                       ),
                       actions: <Widget>[
-                        new FlatButton(
-                          child: new Text('SAVE'),
+                        TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text('CANCEL')),
+                        TextButton(
+                          child: Text('SAVE'),
                           onPressed: () {
                             if (_textFieldController.text.length > 0) {
                               setState(() {
@@ -532,9 +535,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
                             }
                           },
                         ),
-                        new FlatButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: new Text('CANCEL'))
                       ],
                     );
                   });
@@ -898,16 +898,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   (gameMode == GameModes.Countdown ? '' : ' in $round rounds') +
                   '! Do you want to finish the game?',
               actions: <Widget>[
-                new FlatButton(
-                    child: new Text('FINISH'),
+                TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('CANCEL')),
+                TextButton(
+                    child: Text('FINISH'),
                     onPressed: () {
                       GamePlaying.isPlayingAGame = false;
                       Navigator.of(context)
                           .popUntil(ModalRoute.withName('/gameChoice'));
                     }),
-                new FlatButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: new Text('CANCEL'))
               ],
             ),
             Fireworks(
@@ -945,8 +945,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     lastThrownScore.toString() +
                     ' that turn.',
             actions: <Widget>[
-              new FlatButton(
-                child: new Text('UNDO'),
+              TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('CANCEL')),
+              TextButton(
+                child: Text('UNDO'),
                 onPressed: () {
                   setState(() {
                     hasUndoneMove = true;
@@ -967,9 +970,6 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   Navigator.of(context).pop();
                 },
               ),
-              new FlatButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: new Text('CANCEL'))
             ],
           );
         });

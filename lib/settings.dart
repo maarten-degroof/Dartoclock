@@ -110,11 +110,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               controller: _classicTextFieldController,
                               inputFormatters: <TextInputFormatter>[
                                 FilteringTextInputFormatter.digitsOnly,
-                                new LengthLimitingTextInputFormatter(4)
+                                LengthLimitingTextInputFormatter(4)
                               ],
                             ),
                             actions: <Widget>[
-                              FlatButton(
+                              TextButton(
+                                child: Text('CANCEL'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              TextButton(
                                 child: Text('SAVE'),
                                 onPressed: () {
                                   if (_classicTextFieldController.text.length >
@@ -192,7 +198,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               contentText:
                                   'Are you sure you want to reset all your statistics back to zero?',
                               actions: <Widget>[
-                                FlatButton(
+                                TextButton(
+                                  child: Text('CANCEL'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                TextButton(
                                   child: Text('RESET'),
                                   onPressed: () {
                                     Statistics.resetStatistics();
@@ -203,12 +215,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     Navigator.of(context).pop();
                                   },
                                 ),
-                                FlatButton(
-                                  child: Text('CANCEL'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                )
                               ],
                             );
                           });
