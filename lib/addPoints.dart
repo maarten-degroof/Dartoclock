@@ -523,7 +523,7 @@ class _AddPointsScreenState extends State<AddPointsScreen>
             titleText: 'Invalid input',
             contentText:
                 'You filled in scores that won\'t be counted. These values won\'t '
-                    'be used. Are you sure you want to continue?',
+                'be used. Are you sure you want to continue?',
             actions: <Widget>[
               new FlatButton(
                   onPressed: () {

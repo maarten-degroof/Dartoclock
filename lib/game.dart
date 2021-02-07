@@ -941,7 +941,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
           return ClassicGeneralDialogWidget(
             titleText: 'Undo previous move',
             contentText:
-                'Are you sure you want to Undo the previous move? You threw a score of ' +
+                'Are you sure you want to undo the previous move? You threw a score of ' +
                     lastThrownScore.toString() +
                     ' that turn.',
             actions: <Widget>[
