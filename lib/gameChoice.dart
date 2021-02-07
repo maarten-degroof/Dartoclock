@@ -10,6 +10,8 @@ class GameChoiceScreen extends StatefulWidget {
   _GameChoiceScreenState createState() => _GameChoiceScreenState();
 }
 
+const MAX_USERS = 15;
+
 class _GameChoiceScreenState extends State<GameChoiceScreen> {
   int users = 2;
 
@@ -67,16 +69,20 @@ class _GameChoiceScreenState extends State<GameChoiceScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      IconButton(
-                        icon: Icon(Icons.remove, color: Colors.white),
-                        onPressed: users == 1
-                            ? null
-                            : () {
-                                setState(() {
-                                  users--;
-                                });
-                              },
-                        padding: EdgeInsets.all(0),
+                      Visibility(
+                        visible: users > 1,
+                        maintainSize: true,
+                        maintainAnimation: true,
+                        maintainState: true,
+                        child: IconButton(
+                          icon: Icon(Icons.remove, color: Colors.white),
+                          onPressed: () {
+                            setState(() {
+                              users--;
+                            });
+                          },
+                          padding: EdgeInsets.all(0),
+                        ),
                       ),
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: 16),
@@ -86,15 +92,19 @@ class _GameChoiceScreenState extends State<GameChoiceScreen> {
                           style: TextStyle(fontSize: 18, color: Colors.white),
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.add, color: Colors.white),
-                        onPressed: users >= 15
-                            ? null
-                            : () {
-                                setState(() {
-                                  users++;
-                                });
-                              },
+                      Visibility(
+                        visible: users < MAX_USERS,
+                        maintainSize: true,
+                        maintainAnimation: true,
+                        maintainState: true,
+                        child: IconButton(
+                          icon: Icon(Icons.add, color: Colors.white),
+                          onPressed: () {
+                            setState(() {
+                              users++;
+                            });
+                          },
+                        ),
                       )
                     ],
                   ),
