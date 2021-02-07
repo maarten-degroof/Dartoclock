@@ -78,7 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         backgroundColor: Colors.transparent,
         body: Container(
-          margin: EdgeInsets.only(top: 10),
+          padding: EdgeInsets.only(top: 10),
+          color: Color(0xFFEFEFF4),
           child: SettingsList(
             //backgroundColor: Colors.transparent,
             sections: [
