@@ -256,21 +256,18 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildRoundText() {
-    if (gameMode == GameModes.Classic || gameMode == GameModes.Elimination) {
-      return Text(
-        'Round: ' + round.toString(),
-        textAlign: TextAlign.center,
-        softWrap: true,
-        style: TextStyle(fontSize: 20, color: Colors.white),
-      );
-    }
-    return Container();
+    return Text(
+      'Round: ' + round.toString(),
+      textAlign: TextAlign.center,
+      softWrap: true,
+      style: TextStyle(fontSize: 20, color: Colors.white),
+    );
   }
 
   String _loadGameModeDescription() {
     switch (gameMode) {
       case GameModes.Classic:
-        return 'The first one to get their counter to 0 wins.';
+        return 'The first one to get their score to 0 wins.';
       case GameModes.Countdown:
         return 'Throw each number once starting from 20 and going to 1. The first person to throw all 20 numbers wins.';
       case GameModes.Elimination:
@@ -558,31 +555,33 @@ class _PlayerScreenState extends State<PlayerScreen> {
     }
   }
 
-  Widget _buildCountdownThrowsTextField() {
-    String textBuilder = '';
-    for (int i = countDownStart; i > 0; i--) {
+  RichText _buildCountdownThrowsTextField() {
+    WidgetSpan checkIcon =
+        WidgetSpan(child: Icon(Icons.check, color: Colors.green));
+    TextSpan span = TextSpan(
+        style: TextStyle(height: 2, color: Colors.black), children: []);
+
+    for (int throwNumber = countDownStart; throwNumber > 0; throwNumber--) {
       // If i is bigger, the throw has already been completed
-      if (i > currentCountdownThrow) {
-        textBuilder += '✔' + i.toString() + '    ';
+      if (throwNumber > currentCountdownThrow) {
+        span.children.add(checkIcon);
+        span.children.add(TextSpan(text: throwNumber.toString() + '\t\t'));
       } else {
-        textBuilder += '❌' + i.toString() + '    ';
+        span.children.add(TextSpan(text: '❌' + throwNumber.toString() + '\t\t'));
       }
     }
-    return RichText(
-      text: TextSpan(
-        style: TextStyle(height: 2, color: Colors.black),
-        children: [
-          TextSpan(text: textBuilder),
-          _addBullseyeToCountdownTextField(),
-        ],
-      ),
-    );
+
+    span.children.add(_addBullseyeToCountdownTextField());
+
+    return RichText(text: span);
   }
 
   TextSpan _addBullseyeToCountdownTextField() {
     if (shouldThrowBullsEyeCountdown) {
       return TextSpan(children: [
-        hasThrownBullsEyeCountdown ? TextSpan(text: '✔') : TextSpan(text: '❌'),
+        hasThrownBullsEyeCountdown
+            ? WidgetSpan(child: Icon(Icons.check, color: Colors.green))
+            : TextSpan(text: '❌'),
         WidgetSpan(
           child: Padding(
             padding: const EdgeInsets.all(0),
@@ -594,14 +593,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
     return TextSpan(text: ' ');
   }
 
-  Text _buildEliminationStatusTextField() {
+  Text _buildStatusTextField() {
     if (playerIsEliminated) {
       return Text('You are eliminated!',
           style: TextStyle(color: Colors.red, fontSize: 16));
     } else if (playerWins) {
       return Text('You won!! Congratulations!',
           style: TextStyle(color: Colors.green, fontSize: 16));
-    } else if (score != null) {
+    } else if (roundPlayed) {
       return Text(
         'Wait until everyone has thrown this round.',
         style: TextStyle(fontSize: 16),
@@ -614,7 +613,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   Widget _buildEliminationGame() {
     return Column(children: [
-      _buildEliminationStatusTextField(),
+      _buildStatusTextField(),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         OutlineButton(
             onPressed: (isPlayerEliminated() || playerWins || roundPlayed)
@@ -663,35 +662,28 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
   Widget _buildCountdownGame() {
     return Column(children: [
-      Hero(
-        tag: id.toString() + '_score',
-        child: Material(
-          color: Colors.transparent,
-          child: Text(
-            _buildScoreToThrowCountDownGame(),
-            style: TextStyle(fontSize: 18),
-          ),
-        ),
+      Text(
+        _buildScoreToThrowCountDownGame(),
+        style: TextStyle(fontSize: 18),
       ),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Visibility(
-          visible: currentCountdownThrow < countDownStart,
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          child: IconButton(
-            icon: Icon(Icons.undo),
-            onPressed: (hasUndoneMove || playerWins || playerIsEliminated)
+      _buildStatusTextField(),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+        OutlinedButton(
+            onPressed: (playerWins || playerIsEliminated || roundPlayed)
                 ? null
-                : _showUndoDialog,
-          ),
-        ),
-        OutlineButton(
-          onPressed: (playerWins || playerIsEliminated)
+                : () {
+                    setState(() {
+                      roundPlayed = true;
+                      _GameScreenState.checkRoundForUpdate(context);
+                    });
+                  },
+            child: Text('❌ I missed')),
+        OutlinedButton.icon(
+          onPressed: (playerWins || playerIsEliminated || roundPlayed)
               ? null
               : () {
                   setState(() {
-                    hasUndoneMove = false;
+                    roundPlayed = true;
                     if (currentCountdownThrow > 0) {
                       Statistics.addScoreThrown(
                           currentCountdownThrow.toDouble());
@@ -709,26 +701,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       } else {
                         playerLost();
                       }
+                    } else {
+                      _GameScreenState.checkRoundForUpdate(context);
                     }
                   });
                 },
-          child: Text(
+          icon: Icon(Icons.check, color: Colors.green),
+          label: Text(
             'I threw it',
-            style: TextStyle(fontSize: 18),
-          ),
-        ),
-        Visibility(
-          visible: previousScoreList.isNotEmpty,
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          child: IconButton(
-            icon: Icon(Icons.history),
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => HistoryWindow(
-                      name, previousScoreList, score, gameStartScore)));
-            },
           ),
         ),
       ]),
@@ -751,6 +731,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
           ),
         ),
       ),
+      _buildStatusTextField(),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         Visibility(
           visible: previousScoreList.isNotEmpty,
