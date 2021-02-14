@@ -77,25 +77,110 @@ class _SettingsScreenState extends State<SettingsScreen> {
           elevation: 0,
         ),
         backgroundColor: Colors.transparent,
-        body: Container(
-          padding: EdgeInsets.only(top: 10),
-          color: Color(0xFFEFEFF4),
-          child: SettingsList(
-            //backgroundColor: Colors.transparent,
-            sections: [
-              SettingsSection(title: 'Classic game', tiles: [
+        body: SettingsList(
+          contentPadding: EdgeInsets.only(top: 10),
+          sections: [
+            SettingsSection(title: 'Classic game', tiles: [
+              SettingsTile(
+                title: 'Score to reach',
+                subtitleMaxLines: 10,
+                subtitle: 'What is the score you want to start with? '
+                    'Changing this value will only affect future games. '
+                    'Default: 360. Currently: $classicPoints.',
+                leading: Icon(Icons.score),
+                onPressed: (context) {
+                  setState(() {
+                    _classicTextFieldController.text = classicPoints.toString();
+                  });
+                  return showAnimatedDialog(
+                      animationType: DialogTransitionType.size,
+                      curve: Curves.easeInOut,
+                      duration: Duration(seconds: 1),
+                      barrierDismissible: true,
+                      context: context,
+                      builder: (context) {
+                        return CustomDialogWidget(
+                          title: Text('Classic start number'),
+                          content: TextField(
+                            keyboardType: TextInputType.number,
+                            controller: _classicTextFieldController,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(4)
+                            ],
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text('CANCEL'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            TextButton(
+                              child: Text('SAVE'),
+                              onPressed: () {
+                                if (_classicTextFieldController.text.length >
+                                        0 &&
+                                    int.parse(
+                                            _classicTextFieldController.text) >
+                                        0) {
+                                  setState(() {
+                                    classicPoints = int.parse(
+                                        _classicTextFieldController.text);
+                                    setSharedPrefs();
+                                  });
+                                }
+                                Navigator.of(context).pop();
+                              },
+                            )
+                          ],
+                        );
+                      });
+                },
+              )
+            ]),
+            SettingsSection(
+              title: 'Countdown game',
+              tiles: [
+                SettingsTile.switchTile(
+                    title: 'End with a bang',
+                    subtitleMaxLines: 5,
+                    subtitle:
+                        'Extra difficulty: after throwing the 1 you win by throwing bullseye.',
+                    leading: Icon(Icons.notifications),
+                    onToggle: (value) {
+                      setState(() {
+                        shouldThrowBullseyeCountdown = value;
+                      });
+                      setSharedPrefs();
+                    },
+                    switchValue: shouldThrowBullseyeCountdown)
+              ],
+            ),
+            SettingsSection(
+              title: 'General settings',
+              tiles: [
                 SettingsTile(
-                  title: 'Score to reach',
-                  subtitleMaxLines: 10,
-                  subtitle: 'What is the score you want to start with? '
-                      'Changing this value will only affect future games. '
-                      'Default: 360. Currently: $classicPoints.',
-                  leading: Icon(Icons.score),
+                  title: 'GitHub',
+                  subtitleMaxLines: 5,
+                  subtitle: 'Go to the GitHub-page to find the latest release.',
+                  leading: Icon(CustomIcons.github_mark),
                   onPressed: (context) {
-                    setState(() {
-                      _classicTextFieldController.text =
-                          classicPoints.toString();
-                    });
+                    _launchGithub();
+                  },
+                ),
+                SettingsTile(
+                  title: 'Version',
+                  subtitle: version,
+                  leading: Icon(Icons.info),
+                ),
+                SettingsTile(
+                  title: 'Reset statistics',
+                  subtitleMaxLines: 5,
+                  subtitle:
+                      'This resets all the statistics back to zero so you can start over.',
+                  leading: Icon(Icons.undo),
+                  onPressed: (context) {
                     return showAnimatedDialog(
                         animationType: DialogTransitionType.size,
                         curve: Curves.easeInOut,
@@ -103,16 +188,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         barrierDismissible: true,
                         context: context,
                         builder: (context) {
-                          return CustomDialogWidget(
-                            title: Text('Classic start number'),
-                            content: TextField(
-                              keyboardType: TextInputType.number,
-                              controller: _classicTextFieldController,
-                              inputFormatters: <TextInputFormatter>[
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(4)
-                              ],
-                            ),
+                          return ClassicGeneralDialogWidget(
+                            titleText: 'Reset statistics',
+                            contentText:
+                                'Are you sure you want to reset all your statistics back to zero?',
                             actions: <Widget>[
                               TextButton(
                                 child: Text('CANCEL'),
@@ -121,109 +200,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 },
                               ),
                               TextButton(
-                                child: Text('SAVE'),
+                                child: Text('RESET'),
                                 onPressed: () {
-                                  if (_classicTextFieldController.text.length >
-                                          0 &&
-                                      int.parse(_classicTextFieldController
-                                              .text) >
-                                          0) {
-                                    setState(() {
-                                      classicPoints = int.parse(
-                                          _classicTextFieldController.text);
-                                      setSharedPrefs();
-                                    });
-                                  }
+                                  Statistics.resetStatistics();
+                                  Fluttertoast.showToast(
+                                    msg: 'Statistics are reset',
+                                    toastLength: Toast.LENGTH_SHORT,
+                                  );
                                   Navigator.of(context).pop();
                                 },
-                              )
+                              ),
                             ],
                           );
                         });
                   },
-                )
-              ]),
-              SettingsSection(
-                title: 'Countdown game',
-                tiles: [
-                  SettingsTile.switchTile(
-                      title: 'End with a bang',
-                      subtitleMaxLines: 5,
-                      subtitle:
-                          'Extra difficulty: after throwing the 1 you win by throwing bullseye.',
-                      leading: Icon(Icons.notifications),
-                      onToggle: (value) {
-                        setState(() {
-                          shouldThrowBullseyeCountdown = value;
-                        });
-                        setSharedPrefs();
-                      },
-                      switchValue: shouldThrowBullseyeCountdown)
-                ],
-              ),
-              SettingsSection(
-                title: 'General settings',
-                tiles: [
-                  SettingsTile(
-                    title: 'GitHub',
-                    subtitleMaxLines: 5,
-                    subtitle:
-                        'Go to the GitHub-page to find the latest release.',
-                    leading: Icon(CustomIcons.github_mark),
-                    onPressed: (context) {
-                      _launchGithub();
-                    },
-                  ),
-                  SettingsTile(
-                    title: 'Version',
-                    subtitle: version,
-                    leading: Icon(Icons.info),
-                  ),
-                  SettingsTile(
-                    title: 'Reset statistics',
-                    subtitleMaxLines: 5,
-                    subtitle:
-                        'This resets all the statistics back to zero so you can start over.',
-                    leading: Icon(Icons.undo),
-                    onPressed: (context) {
-                      return showAnimatedDialog(
-                          animationType: DialogTransitionType.size,
-                          curve: Curves.easeInOut,
-                          duration: Duration(seconds: 1),
-                          barrierDismissible: true,
-                          context: context,
-                          builder: (context) {
-                            return ClassicGeneralDialogWidget(
-                              titleText: 'Reset statistics',
-                              contentText:
-                                  'Are you sure you want to reset all your statistics back to zero?',
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text('CANCEL'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                TextButton(
-                                  child: Text('RESET'),
-                                  onPressed: () {
-                                    Statistics.resetStatistics();
-                                    Fluttertoast.showToast(
-                                      msg: 'Statistics are reset',
-                                      toastLength: Toast.LENGTH_SHORT,
-                                    );
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          });
-                    },
-                  ),
-                ],
-              )
-            ],
-          ),
+                ),
+              ],
+            )
+          ],
         ),
         bottomNavigationBar: BottomNavigation(index: 3),
       ),
