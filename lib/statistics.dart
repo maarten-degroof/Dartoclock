@@ -107,11 +107,13 @@ class Statistics {
   /// Calculates the average amount of rounds played, rounded up so you don't get
   /// 1.5 rounds or 0.3 rounds which would be 0 when rounded down.
   static int getAverageRoundsPlayed() {
-    if (totalRoundsPlayed == 0 || (classicGamesStarted == 0 && eliminationGamesStarted == 0)) {
+    if (totalRoundsPlayed == 0 ||
+        (classicGamesStarted == 0 &&
+            eliminationGamesStarted == 0 &&
+            countdownGamesStarted == 0)) {
       return 0;
     }
-    return (totalRoundsPlayed / (classicGamesStarted + eliminationGamesStarted))
-        .ceil();
+    return (totalRoundsPlayed / totalStartedGames()).ceil();
   }
 
   static double getTotalRoundsPlayed() {
@@ -149,7 +151,8 @@ class Statistics {
     _saveStatistics();
   }
 
-  /// This loads the _getStatistics function which loads or defaults all the statistics
+  /// This loads the _loadStatistics function which loads or defaults all the statistics
+  /// This is called when the app is started in main.dart
   static void initialise() {
     _loadStatistics();
   }
