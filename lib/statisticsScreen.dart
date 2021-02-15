@@ -1,10 +1,13 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:countup/countup.dart';
+import 'package:dartoclock/BackgroundColorLoader.dart';
 import 'package:dartoclock/statistics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pie_chart/pie_chart.dart' as pie;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import 'bottomNavigation.dart';
 
@@ -19,10 +22,32 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Map<String, double> totalGamesMap = Map();
   List<charts.Series> barChartSeriesList;
 
+  String generalBackgroundColor;
+
+  // Vital for identifying our VisibilityDetector when a rebuild occurs.
+  final Key visibilityDetectorKey = UniqueKey();
+
   @override
   void initState() {
     super.initState();
     barChartSeriesList = loadBarChartData();
+
+    generalBackgroundColor = 'Blue';
+    loadBackgroundColor(null);
+  }
+
+  /// (Re-)Loads the background color
+  ///
+  /// This method is called by the VisibilityDetector. [info] contains information
+  /// regarding the visibility.
+  void loadBackgroundColor(VisibilityInfo info) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (this.mounted) {
+      setState(() {
+        generalBackgroundColor =
+            prefs.getString('generalBackgroundColor') ?? 'Blue';
+      });
+    }
   }
 
   void _createMap() {
@@ -36,43 +61,44 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   @override
   Widget build(BuildContext context) {
     _createMap();
-    return Container(
-      decoration: BoxDecoration(
-          gradient: LinearGradient(
-        begin: Alignment.bottomCenter,
-        end: Alignment.topCenter,
-        colors: [
-          Color.fromRGBO(77, 85, 225, 1.0),
-          Color.fromRGBO(93, 167, 231, 1.0),
-        ],
-      )),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Statistics'),
-          centerTitle: true,
-          automaticallyImplyLeading: false,
+    return VisibilityDetector(
+      key: visibilityDetectorKey,
+      onVisibilityChanged: loadBackgroundColor,
+      child: Container(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: BackgroundColorLoader.getColor(generalBackgroundColor),
+        )),
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Statistics'),
+            centerTitle: true,
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+          ),
           backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-        backgroundColor: Colors.transparent,
-        body: ListView(children: [
-          Center(
-            child: Container(
-              margin: EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _getGamesStartedAndFinished(),
-                  _getGamesBarChart(),
-                  _getAllPlayedGamesPieChart(),
-                  _getRoundsText(),
-                  _getScoreCard(),
-                ],
+          body: ListView(children: [
+            Center(
+              child: Container(
+                margin: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _getGamesStartedAndFinished(),
+                    _getGamesBarChart(),
+                    _getAllPlayedGamesPieChart(),
+                    _getRoundsText(),
+                    _getScoreCard(),
+                  ],
+                ),
               ),
             ),
-          ),
-        ]),
-        bottomNavigationBar: BottomNavigation(index: 2),
+          ]),
+          bottomNavigationBar: BottomNavigation(index: 2),
+        ),
       ),
     );
   }

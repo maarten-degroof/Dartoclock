@@ -1,5 +1,8 @@
+import 'package:dartoclock/BackgroundColorLoader.dart';
 import 'package:dartoclock/bottomNavigation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class Item {
   Item({
@@ -20,11 +23,32 @@ class Rules extends StatefulWidget {
 
 class _RulesState extends State<Rules> {
   List<Item> itemList;
+  String generalBackgroundColor;
+
+  // Vital for identifying our VisibilityDetector when a rebuild occurs.
+  final Key visibilityDetectorKey = UniqueKey();
 
   @override
   void initState() {
     super.initState();
     itemList = _generateListItems();
+
+    generalBackgroundColor = 'Blue';
+    loadBackgroundColor(null);
+  }
+
+  /// (Re-)Loads the background color
+  ///
+  /// This method is called by the VisibilityDetector. [info] contains information
+  /// regarding the visibility.
+  void loadBackgroundColor(VisibilityInfo info) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (this.mounted) {
+      setState(() {
+        generalBackgroundColor =
+            prefs.getString('generalBackgroundColor') ?? 'Blue';
+      });
+    }
   }
 
   List<Item> _generateListItems() {
@@ -68,48 +92,49 @@ class _RulesState extends State<Rules> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          gradient: LinearGradient(
-        begin: Alignment.bottomCenter,
-        end: Alignment.topCenter,
-        colors: [
-          Color.fromRGBO(77, 85, 225, 1.0),
-          Color.fromRGBO(93, 167, 231, 1.0),
-        ],
-      )),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Rules'),
-          centerTitle: true,
-          elevation: 0,
+    return VisibilityDetector(
+      key: visibilityDetectorKey,
+      onVisibilityChanged: loadBackgroundColor,
+      child: Container(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: BackgroundColorLoader.getColor(generalBackgroundColor),
+        )),
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Rules'),
+            centerTitle: true,
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+          ),
           backgroundColor: Colors.transparent,
-          automaticallyImplyLeading: false,
-        ),
-        backgroundColor: Colors.transparent,
-        body: SingleChildScrollView(
-          child: Container(
-            margin: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Container(
-                  margin: EdgeInsets.all(10),
-                  child: Text(
-                    'Here you can find all the different game modes and read a bit about them.'
-                    ' Tap a game mode to get started.',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+          body: SingleChildScrollView(
+            child: Container(
+              margin: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Container(
+                    margin: EdgeInsets.all(10),
+                    child: Text(
+                      'Here you can find all the different game modes and read a bit about them.'
+                      ' Tap a game mode to get started.',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                ),
-                _buildPanel(),
-                SizedBox(height: 30)
-              ],
+                  _buildPanel(),
+                  SizedBox(height: 30)
+                ],
+              ),
             ),
           ),
+          bottomNavigationBar: BottomNavigation(index: 1),
         ),
-        bottomNavigationBar: BottomNavigation(index: 1),
       ),
     );
   }

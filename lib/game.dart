@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dartoclock/BackgroundColorLoader.dart';
 import 'package:dartoclock/gameModesEnum.dart';
 import 'package:dartoclock/gamePlaying.dart';
 import 'package:dartoclock/history.dart';
@@ -7,9 +8,10 @@ import 'package:dartoclock/statistics.dart';
 import 'package:fireworks/fireworks.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:show_up_animation/show_up_animation.dart';
-import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import 'addPoints.dart';
 import 'bottomNavigation.dart';
@@ -36,6 +38,11 @@ class _GameScreenState extends State<GameScreen> {
   static List<PlayerScreen> userList;
   static Random random;
 
+  String gameBackgroundColor;
+
+  // Vital for identifying our VisibilityDetector when a rebuild occurs.
+  final Key visibilityDetectorKey = UniqueKey();
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +51,8 @@ class _GameScreenState extends State<GameScreen> {
     random = Random();
     someoneFinished = false;
     round = 1;
+    gameBackgroundColor = 'Red';
+    loadBackgroundColor(null);
   }
 
   static void checkRoundForUpdate(BuildContext context) {
@@ -162,6 +171,19 @@ class _GameScreenState extends State<GameScreen> {
     return indexList;
   }
 
+  /// (Re-)Loads the background color
+  ///
+  /// This method is called by the VisibilityDetector. [info] contains information
+  /// regarding the visibility.
+  void loadBackgroundColor(VisibilityInfo info) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (this.mounted) {
+      setState(() {
+        gameBackgroundColor = prefs.getString('gameBackgroundColor') ?? 'Red';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final GameArguments args = ModalRoute.of(context).settings.arguments;
@@ -184,71 +206,72 @@ class _GameScreenState extends State<GameScreen> {
       }
     }
 
-    return Container(
-      decoration: BoxDecoration(
-          gradient: LinearGradient(
-        begin: Alignment.bottomCenter,
-        end: Alignment.topCenter,
-        colors: [
-          Color.fromRGBO(245, 68, 113, 1.0),
-          Color.fromRGBO(245, 161, 81, 1.0),
-        ],
-      )),
-      child: WillPopScope(
-        onWillPop: _showQuitGameDialog,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text('Dartoclock'),
-            leading: IconButton(
-                icon: Icon(Icons.stop), onPressed: _showQuitGameDialog),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-          ),
-          backgroundColor: Colors.transparent,
-          body: ListView(children: [
-            Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: EdgeInsets.all(20),
-                    child: Center(
-                      child: Column(children: [
-                        Text(
-                          gameMode.toString().split('.').last + ' game',
-                          textAlign: TextAlign.center,
-                          softWrap: true,
-                          style: TextStyle(fontSize: 20, color: Colors.white),
-                        ),
-                        _buildRoundText(),
-                        Container(
-                          margin: EdgeInsets.only(top: 5),
-                          child: Text(
-                            _loadGameModeDescription(),
-                            style: TextStyle(color: Colors.white),
-                            textAlign: TextAlign.center,
-                          ),
-                        )
-                      ]),
-                    ),
-                  ),
-                  ShowUpList(
-                    direction: Direction.horizontal,
-                    animationDuration: Duration(milliseconds: 1200),
-                    delayBetween: Duration(milliseconds: 600),
-                    offset: -0.2,
-                    children: <Widget>[
-                      for (int i = 0; i < userList.length; i++)
-                        userList.elementAt(i)
-                    ],
-                  ),
-                ],
-              ),
+    return VisibilityDetector(
+      key: visibilityDetectorKey,
+      onVisibilityChanged: loadBackgroundColor,
+      child: Container(
+        decoration: BoxDecoration(
+            gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: BackgroundColorLoader.getColor(gameBackgroundColor),
+        )),
+        child: WillPopScope(
+          onWillPop: _showQuitGameDialog,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text('Dartoclock'),
+              leading: IconButton(
+                  icon: Icon(Icons.stop), onPressed: _showQuitGameDialog),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
             ),
-          ]),
-          bottomNavigationBar: BottomNavigation(
-            index: 0,
+            backgroundColor: Colors.transparent,
+            body: ListView(children: [
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(20),
+                      child: Center(
+                        child: Column(children: [
+                          Text(
+                            gameMode.toString().split('.').last + ' game',
+                            textAlign: TextAlign.center,
+                            softWrap: true,
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
+                          _buildRoundText(),
+                          Container(
+                            margin: EdgeInsets.only(top: 5),
+                            child: Text(
+                              _loadGameModeDescription(),
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                        ]),
+                      ),
+                    ),
+                    ShowUpList(
+                      direction: Direction.horizontal,
+                      animationDuration: Duration(milliseconds: 1200),
+                      delayBetween: Duration(milliseconds: 600),
+                      offset: -0.2,
+                      children: <Widget>[
+                        for (int i = 0; i < userList.length; i++)
+                          userList.elementAt(i)
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ]),
+            bottomNavigationBar: BottomNavigation(
+              index: 0,
+            ),
           ),
         ),
       ),
@@ -567,7 +590,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
         span.children.add(checkIcon);
         span.children.add(TextSpan(text: throwNumber.toString() + '\t\t'));
       } else {
-        span.children.add(TextSpan(text: '❌' + throwNumber.toString() + '\t\t'));
+        span.children
+            .add(TextSpan(text: '❌' + throwNumber.toString() + '\t\t'));
       }
     }
 

@@ -1,3 +1,4 @@
+import 'package:dartoclock/BackgroundColorLoader.dart';
 import 'package:dartoclock/customIcons.dart';
 import 'package:dartoclock/statistics.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,6 +24,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool shouldThrowBullseyeCountdown;
   String version;
 
+  String generalBackgroundColor;
+  String gameBackgroundColor;
+
+  // the DropdownColor variables are the actual variables in the dropdown buttons
+  String generalDropdownColor;
+  String gameDropdownColor;
+
   Future<void> getSharedPrefs() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -31,6 +39,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       shouldThrowBullseyeCountdown =
           prefs.getBool('shouldThrowBullseyeCountdown') ?? false;
+
+      generalBackgroundColor =
+          prefs.getString('generalBackgroundColor') ?? 'Blue';
+      generalDropdownColor = generalBackgroundColor;
+      gameBackgroundColor = prefs.getString('gameBackgroundColor') ?? 'Red';
+      gameDropdownColor = gameBackgroundColor;
     });
   }
 
@@ -38,6 +52,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt('classicPoints', classicPoints);
     prefs.setBool('shouldThrowBullseyeCountdown', shouldThrowBullseyeCountdown);
+
+    prefs.setString('generalBackgroundColor', generalBackgroundColor);
+    prefs.setString('gameBackgroundColor', gameBackgroundColor);
   }
 
   Future<void> setVersionNumber() async {
@@ -50,8 +67,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+
     classicPoints = 0;
     shouldThrowBullseyeCountdown = false;
+
+    generalBackgroundColor = 'Blue';
+    generalDropdownColor = generalBackgroundColor;
+    gameBackgroundColor = 'Red';
+    gameDropdownColor = gameBackgroundColor;
+
     getSharedPrefs();
     setVersionNumber();
   }
@@ -61,13 +85,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
-        begin: Alignment.bottomCenter,
-        end: Alignment.topCenter,
-        colors: [
-          Color.fromRGBO(77, 85, 225, 1.0),
-          Color.fromRGBO(93, 167, 231, 1.0),
-        ],
-      )),
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: BackgroundColorLoader.getColor(generalBackgroundColor))),
       child: Scaffold(
         appBar: AppBar(
           title: Text('Settings'),
@@ -155,6 +175,144 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       setSharedPrefs();
                     },
                     switchValue: shouldThrowBullseyeCountdown)
+              ],
+            ),
+            SettingsSection(
+              title: 'Colors',
+              tiles: [
+                SettingsTile(
+                  title: 'General color',
+                  subtitleMaxLines: 5,
+                  subtitle:
+                      'Change the general color scheme. Default: Blue. Currently: $generalBackgroundColor.',
+                  leading: Icon(Icons.color_lens_rounded),
+                  onPressed: (context) {
+                    setState(() {
+                      generalDropdownColor = generalBackgroundColor;
+                    });
+                    return showAnimatedDialog(
+                        animationType: DialogTransitionType.size,
+                        curve: Curves.easeInOut,
+                        duration: Duration(seconds: 1),
+                        barrierDismissible: true,
+                        context: context,
+                        builder: (context) {
+                          return CustomDialogWidget(
+                            title: Text('General color'),
+                            content: StatefulBuilder(builder:
+                                (BuildContext context, StateSetter setState) {
+                              return Wrap(children: [
+                                Text(
+                                    'Change the color of the start screen, rules, '
+                                    'statistics and settings screens.'),
+                                Center(
+                                  child: DropdownButton<String>(
+                                      value: generalDropdownColor,
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          generalDropdownColor = newValue;
+                                        });
+                                      },
+                                      items: BackgroundColorLoader
+                                              .getColorNamesList()
+                                          .map<DropdownMenuItem<String>>(
+                                              (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList()),
+                                ),
+                              ]);
+                            }),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text('CANCEL'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              TextButton(
+                                child: Text('SAVE'),
+                                onPressed: () {
+                                  setState(() {
+                                    generalBackgroundColor =
+                                        generalDropdownColor;
+                                    setSharedPrefs();
+                                  });
+                                  Navigator.of(context).pop();
+                                },
+                              )
+                            ],
+                          );
+                        });
+                  },
+                ),
+                SettingsTile(
+                  title: 'Game color',
+                  subtitleMaxLines: 5,
+                  subtitle:
+                      'Change the game color scheme. Default: Red. Currently: $gameBackgroundColor.',
+                  leading: Icon(Icons.color_lens_rounded),
+                  onPressed: (context) {
+                    setState(() {
+                      gameDropdownColor = gameBackgroundColor;
+                    });
+                    return showAnimatedDialog(
+                        animationType: DialogTransitionType.size,
+                        curve: Curves.easeInOut,
+                        duration: Duration(seconds: 1),
+                        barrierDismissible: true,
+                        context: context,
+                        builder: (context) {
+                          return CustomDialogWidget(
+                            title: Text('Game color'),
+                            content: StatefulBuilder(builder:
+                                (BuildContext context, StateSetter setState) {
+                              return Wrap(children: [
+                                Text('Change the color of the game screen.'),
+                                Center(
+                                  child: DropdownButton<String>(
+                                      value: gameDropdownColor,
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          gameDropdownColor = newValue;
+                                        });
+                                      },
+                                      items: BackgroundColorLoader
+                                              .getColorNamesList()
+                                          .map<DropdownMenuItem<String>>(
+                                              (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList()),
+                                ),
+                              ]);
+                            }),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text('CANCEL'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              TextButton(
+                                child: Text('SAVE'),
+                                onPressed: () {
+                                  setState(() {
+                                    gameBackgroundColor = gameDropdownColor;
+                                    setSharedPrefs();
+                                  });
+                                  Navigator.of(context).pop();
+                                },
+                              )
+                            ],
+                          );
+                        });
+                  },
+                ),
               ],
             ),
             SettingsSection(
