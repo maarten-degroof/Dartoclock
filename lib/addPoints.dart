@@ -191,10 +191,9 @@ class _AddPointsScreenState extends State<AddPointsScreen>
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0.0,
-            title: Text(
-              'Add throw',
-              style: TextStyle(color: Colors.black),
-            ),
+            title: isWindowShowing
+                ? Text('Add throw', style: TextStyle(color: Colors.black))
+                : Text(''),
             centerTitle: true,
             leading: Hero(
               tag: widget.userId.toString() + "_backIcon",
