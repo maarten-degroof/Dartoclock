@@ -1,6 +1,9 @@
 enum BackgroundColor{
-  Red,
-  Green,
-  Dark_green,
+  Dawn,
+  Maroon,
+  Peach,
+  Turquoise,
+  Emerald,
   Blue,
+  Lagoon,
 }

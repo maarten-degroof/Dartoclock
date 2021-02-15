@@ -43,7 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       generalBackgroundColor =
           prefs.getString('generalBackgroundColor') ?? 'Blue';
       generalDropdownColor = generalBackgroundColor;
-      gameBackgroundColor = prefs.getString('gameBackgroundColor') ?? 'Red';
+      gameBackgroundColor = prefs.getString('gameBackgroundColor') ?? 'Peach';
       gameDropdownColor = gameBackgroundColor;
     });
   }
@@ -73,7 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     generalBackgroundColor = 'Blue';
     generalDropdownColor = generalBackgroundColor;
-    gameBackgroundColor = 'Red';
+    gameBackgroundColor = 'Peach';
     gameDropdownColor = gameBackgroundColor;
 
     getSharedPrefs();

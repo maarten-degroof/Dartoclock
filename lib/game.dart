@@ -54,7 +54,7 @@ class _GameScreenState extends State<GameScreen> {
     random = Random();
     someoneFinished = false;
     round = 1;
-    gameBackgroundColor = 'Red';
+    gameBackgroundColor = 'Peach';
     loadBackgroundColor(null);
   }
 
@@ -222,7 +222,7 @@ class _GameScreenState extends State<GameScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     if (this.mounted) {
       setState(() {
-        gameBackgroundColor = prefs.getString('gameBackgroundColor') ?? 'Red';
+        gameBackgroundColor = prefs.getString('gameBackgroundColor') ?? 'Peach';
       });
     }
   }
