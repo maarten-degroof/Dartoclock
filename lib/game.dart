@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:dartoclock/BackgroundColorLoader.dart';
@@ -38,6 +39,8 @@ class _GameScreenState extends State<GameScreen> {
   static List<PlayerScreen> userList;
   static Random random;
 
+  static Timer newRoundDialogTimer;
+
   String gameBackgroundColor;
 
   // Vital for identifying our VisibilityDetector when a rebuild occurs.
@@ -65,16 +68,56 @@ class _GameScreenState extends State<GameScreen> {
     });
 
     if (shouldUpdateRound) {
-      _GameScreenState stateObject =
-          context.findAncestorStateOfType<_GameScreenState>();
-      stateObject.setState(() {
-        round++;
-        Statistics.addRoundPlayed();
+      _addRound(context);
+      // Make sure that the timer is canceled if the dialog is closed:
+      // The timer will stay active if the user closed the dialog themselves
+      _showRoundUpdate(context).then((val) {
+        if (newRoundDialogTimer.isActive) {
+          newRoundDialogTimer.cancel();
+        }
       });
       userList.forEach((element) {
         element.setHasPlayedRound(false);
       });
     }
+  }
+
+  /// Increases the round by one and adds this new round to the statistics.
+  static void _addRound(BuildContext context) {
+    final _GameScreenState stateObject =
+        context.findAncestorStateOfType<_GameScreenState>();
+    stateObject.setState(() {
+      round++;
+      Statistics.addRoundPlayed();
+    });
+  }
+
+  /// Shows a dialog with the new round number. This dialog is hidden after
+  /// 2 seconds.
+  static Future<dynamic> _showRoundUpdate(BuildContext context) {
+    // After 2 seconds, hide the dialog again
+    newRoundDialogTimer = Timer(Duration(seconds: 2), () {
+      Navigator.of(context).pop();
+    });
+    return showAnimatedDialog(
+        animationType: DialogTransitionType.size,
+        curve: Curves.easeInOut,
+        duration: Duration(milliseconds: 1000),
+        barrierDismissible: true,
+        context: context,
+        builder: (context) {
+          return CustomDialogWidget(
+            content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Wrap(children: [
+                  Center(
+                    child: Text('Round $round', style: TextStyle(fontSize: 22)),
+                  ),
+                ]);
+              },
+            ),
+          );
+        });
   }
 
   static Future<dynamic> _showPlayerEliminatedDialog(
